@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS `t_role_resource`;
+CREATE TABLE IF NOT EXISTS `t_role_resource`
+(
+    id               int         not null AUTO_INCREMENT,
+    role_id          int not null comment '角色ID',
+    resource_id          int not null comment '资源ID',
+    create_at        timestamp   not null default CURRENT_TIMESTAMP comment '创建时间',
+    create_by        int         not null comment '创建人',
+    primary key (id),
+    unique index `role_user` (role_id, resource_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '角色资源关联表';
+
