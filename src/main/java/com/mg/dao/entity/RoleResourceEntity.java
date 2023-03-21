@@ -6,11 +6,11 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "t_role_user", catalog = "management")
+@Table(name = "t_role_resource", catalog = "management")
 @Getter
 @Setter
-public class RoleUserEntity {
+@Entity
+public class RoleResourceEntity {
     @Column(name = "id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,6 @@ public class RoleUserEntity {
     @Column(name = "role_id")
     private Integer roleId;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "resource_id")
+    private Integer resourceId;
 }

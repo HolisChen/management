@@ -1,7 +1,7 @@
-package com.mg.service.user;
+package com.mg.service.base;
 
 import com.mg.dao.repository.UserRepository;
-import com.mg.domain.bo.user.UserBo;
+import com.mg.domain.bo.base.UserBo;
 import com.mg.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class UserService {
      * @return
      */
     public Optional<UserBo> getByLoginId(String loginId) {
-        return Optional.ofNullable(userRepository.findByLoginId(loginId))
+        return Optional.ofNullable(userRepository.findByLoginIdAndDeleteAtIsNull(loginId))
                 .map(userMapper::entityToBo);
     }
 }

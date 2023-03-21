@@ -1,20 +1,22 @@
 package com.mg.security;
 
-import com.mg.domain.bo.user.UserBo;
+import com.mg.domain.bo.base.UserBo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserDetail implements UserDetails {
     private final UserBo userBo;
+    private final List<GrantedAuthority> grantedAuthorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return grantedAuthorities;
     }
 
     @Override

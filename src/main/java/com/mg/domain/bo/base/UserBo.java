@@ -1,4 +1,4 @@
-package com.mg.domain.bo.user;
+package com.mg.domain.bo.base;
 
 import lombok.Data;
 

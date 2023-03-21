@@ -1,7 +1,7 @@
 package com.mg.mapper;
 
 import com.mg.dao.entity.UserEntity;
-import com.mg.domain.bo.user.UserBo;
+import com.mg.domain.bo.base.UserBo;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
