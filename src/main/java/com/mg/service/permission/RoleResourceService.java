@@ -1,4 +1,4 @@
-package com.mg.service.base;
+package com.mg.service.permission;
 
 import com.mg.dao.entity.RoleResourceEntity;
 import com.mg.dao.repository.RoleResourceRepository;

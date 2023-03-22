@@ -1,9 +1,6 @@
 package com.mg.service.permission;
 
 import com.mg.dao.entity.ResourceEntity;
-import com.mg.service.base.ResourceService;
-import com.mg.service.base.RoleResourceService;
-import com.mg.service.base.RoleUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

@@ -3,6 +3,8 @@ package com.mg.dao.entity;
 import com.mg.dao.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,8 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Table(name = "t_resource", catalog = "management")
+@DynamicInsert
+@DynamicUpdate
 public class ResourceEntity extends BaseEntity {
 
     @Column(name = "parent_id")

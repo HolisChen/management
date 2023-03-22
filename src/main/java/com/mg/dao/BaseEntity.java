@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,13 +16,13 @@ public abstract class BaseEntity {
     private Integer id;
 
     @Column(name = "create_at")
-    private LocalDateTime createAt;
-    
+    private Date createAt;
+
     @Column(name = "update_at")
-    private LocalDateTime updateAt;
+    private Date updateAt;
 
     @Column(name = "delete_at")
-    private LocalDateTime deleteAt;
+    private Date deleteAt;
 
     @Column(name = "create_by")
     private Integer createBy;

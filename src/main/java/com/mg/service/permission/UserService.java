@@ -1,4 +1,4 @@
-package com.mg.service.base;
+package com.mg.service.permission;
 
 import com.mg.dao.repository.UserRepository;
 import com.mg.domain.bo.base.UserBo;

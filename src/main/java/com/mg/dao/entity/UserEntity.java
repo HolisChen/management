@@ -3,6 +3,8 @@ package com.mg.dao.entity;
 import com.mg.dao.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -10,6 +12,8 @@ import javax.persistence.*;
 @Table(name = "t_user", catalog = "management")
 @Getter
 @Setter
+@DynamicInsert
+@DynamicUpdate
 public class UserEntity extends BaseEntity {
     @Column(name = "login_id")
     private String loginId;

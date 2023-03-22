@@ -2,14 +2,18 @@ package com.mg.dao.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Table(name = "t_role_resource", catalog = "management")
 @Getter
 @Setter
 @Entity
+@DynamicInsert
+@DynamicUpdate
 public class RoleResourceEntity {
     @Column(name = "id")
     @Id
@@ -17,7 +21,7 @@ public class RoleResourceEntity {
     private Integer id;
 
     @Column(name = "create_at")
-    private LocalDateTime createAt;
+    private Date createAt;
 
     @Column(name = "create_by")
     private Integer createBy;

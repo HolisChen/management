@@ -6,17 +6,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserDetail implements UserDetails {
     private final UserBo userBo;
-    private final List<GrantedAuthority> grantedAuthorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities;
+        return Collections.emptyList();
     }
 
     @Override
@@ -47,5 +46,9 @@ public class UserDetail implements UserDetails {
     @Override
     public boolean isEnabled() {
         return Optional.ofNullable(userBo).map(UserBo::isActive).orElse(false);
+    }
+
+    public Integer getUserId() {
+        return Optional.ofNullable(userBo).map(UserBo::getId).orElse(null);
     }
 }
