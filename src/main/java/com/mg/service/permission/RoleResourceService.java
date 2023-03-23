@@ -25,4 +25,12 @@ public class RoleResourceService {
                 .map(RoleResourceEntity::getResourceId)
                 .collect(Collectors.toList());
     }
+
+    public void removeByResourceIds(List<Integer> resourceIds) {
+        roleResourceRepository.deleteByResourceIdIn(resourceIds);
+    }
+
+    public void deleteByRoleId(Integer roleId) {
+        roleResourceRepository.deleteByRoleId(roleId);
+    }
 }

@@ -11,4 +11,5 @@ public class CreateResourceDto {
     private Byte resourceType;
     private String resourceUrl;
     private String icon;
+    private Integer sort;
 }

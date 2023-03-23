@@ -1,18 +1,16 @@
 package com.mg.service.permission;
 
-import com.mg.dao.BaseEntity;
 import com.mg.dao.entity.ResourceEntity;
 import com.mg.dao.repository.ResourceRepository;
-import com.mg.domain.vo.base.MenuTree;
-import com.mg.enums.ResourceTypeEnum;
+import com.mg.domain.dto.permission.UpdateResourceDto;
+import com.mg.domain.vo.permission.ResourceTree;
 import com.mg.mapper.ResourceMapper;
-import com.mg.service.base.CRUDService;
+import com.mg.service.CRUDService;
+import com.mg.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +27,7 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
         if (CollectionUtils.isEmpty(resourceIds)) {
             return Collections.emptyList();
         }
-        return repository.findByIdInAndDeleteAtIsNull(resourceIds);
+        return repository.findAllById(resourceIds);
     }
 
     public Optional<ResourceEntity> getById(Integer id) {
@@ -54,22 +52,35 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
         return entity.getId();
     }
 
-    public void removeResources(List<Integer> resourceIds) {
-        List<Integer> needDeleted = this.getByResourceIds(resourceIds)
-                .stream().map(BaseEntity::getId)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(needDeleted)) {
-            return;
+    public void updateResource(UpdateResourceDto dto) {
+        Optional<ResourceEntity> exists = repository.findById(dto.getId());
+        if (!exists.isPresent()) {
+            throw new IllegalArgumentException("修改的资源未找到");
         }
-        this.deleteByIds(needDeleted);
+        ResourceEntity entity = exists.get();
+        if (!Objects.equals(entity.getResourceCode(),dto.getResourceCode())
+            && this.getByCode(dto.getResourceCode()).isPresent()) {
+            throw new IllegalArgumentException("资源code已存在");
+        }
+        dto.update(entity);
+        repository.save(entity);
     }
 
-    public List<MenuTree> getMenuTree() {
-        List<ResourceEntity> resources = repository.findAllByResourceTypeIn(ResourceTypeEnum.menuAndCollection());
+    /**
+     * 逻辑删除resource
+     * @param resourceIds
+     */
+    public void removeResources(List<Integer> resourceIds) {
+        Integer userId = UserUtil.getCurrentUserId();
+        repository.logicDelete(resourceIds,userId);
+    }
+
+    public List<ResourceTree> getResourceTree(List<Byte> resourceTypes) {
+        List<ResourceEntity> resources = repository.findAllByResourceTypeInAndDeleteAtIsNull(resourceTypes);
         return buildChildren(0, resources);
     }
 
-    private List<MenuTree> buildChildren(Integer parentId, List<ResourceEntity> sources) {
+    private List<ResourceTree> buildChildren(Integer parentId, List<ResourceEntity> sources) {
         List<ResourceEntity> childList = sources.stream().filter(item -> Objects.equals(item.getParentId(), parentId))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(childList)) {
@@ -78,12 +89,21 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
         sources.removeAll(childList);
         return childList.stream()
                 .map(item -> {
-                    MenuTree menuTree = resourceMapper.entityToMenuTree(item);
-                    menuTree.setChildren(buildChildren(item.getId(), sources));
-                    return menuTree;
+                    ResourceTree resourceTree = resourceMapper.entityToMenuTree(item);
+                    resourceTree.setChildren(buildChildren(item.getId(), sources));
+                    return resourceTree;
                 })
                 .collect(Collectors.toList());
 
+    }
+
+    /**
+     * 通过userID获取所有有权限的资源
+     * @param userId
+     * @return
+     */
+    public List<ResourceEntity> getAuthorizedResources(Integer userId) {
+        return repository.findAuthorizedByUserId(userId);
     }
 
     @Override

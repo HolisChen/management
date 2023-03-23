@@ -2,7 +2,7 @@ package com.mg.mapper;
 
 import com.mg.dao.entity.ResourceEntity;
 import com.mg.domain.dto.permission.CreateResourceDto;
-import com.mg.domain.vo.base.MenuTree;
+import com.mg.domain.vo.permission.ResourceTree;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
@@ -11,5 +11,5 @@ public interface ResourceMapper {
 
     ResourceEntity dtoToEntity(CreateResourceDto dto);
 
-    MenuTree entityToMenuTree(ResourceEntity entity);
+    ResourceTree entityToMenuTree(ResourceEntity entity);
 }

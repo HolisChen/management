@@ -1,11 +1,12 @@
-package com.mg.domain.vo.base;
+package com.mg.domain.vo.permission;
 
+import com.mg.domain.vo.base.Tree;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class MenuTree extends Tree<MenuTree>{
+public class ResourceTree extends Tree<ResourceTree> {
     private Integer id;
     private String resourceCode;
     private String resourceName;
@@ -15,4 +16,5 @@ public class MenuTree extends Tree<MenuTree>{
     private String resourceUrl;
     private Integer createBy;
     private Date createAt;
+    private Integer sort;
 }

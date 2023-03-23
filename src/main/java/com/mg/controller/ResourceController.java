@@ -2,9 +2,11 @@ package com.mg.controller;
 
 import com.mg.dao.entity.ResourceEntity;
 import com.mg.domain.dto.permission.CreateResourceDto;
-import com.mg.domain.vo.base.MenuTree;
+import com.mg.domain.dto.permission.UpdateResourceDto;
+import com.mg.domain.vo.permission.ResourceTree;
 import com.mg.domain.vo.base.Result;
 import com.mg.mapper.ResourceMapper;
+import com.mg.service.permission.PermissionService;
 import com.mg.service.permission.ResourceService;
 import com.mg.utils.UserUtil;
 import io.swagger.annotations.Api;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ResourceController {
     private final ResourceService resourceService;
     private final ResourceMapper resourceMapper;
+    private final PermissionService permissionService;
 
     @PostMapping
     @ApiOperation(value = "创建一个资源")
@@ -34,13 +37,20 @@ public class ResourceController {
     @DeleteMapping()
     @ApiOperation(value = "删除资源")
     public Result<Void> removeResource(@RequestBody List<Integer> resourceIds) {
-        resourceService.removeResources(resourceIds);
+        permissionService.removeResources(resourceIds);
         return Result.success();
     }
 
-    @GetMapping("/menuTree")
-    @ApiOperation(value = "获取菜单树")
-    public Result<List<MenuTree>> getMenuTree() {
-        return Result.success(resourceService.getMenuTree());
+    @PutMapping()
+    @ApiOperation(value = "修改资源")
+    public Result<Void> updateResource(@RequestBody UpdateResourceDto requestDto) {
+        resourceService.updateResource(requestDto);
+        return Result.success();
+    }
+
+    @GetMapping("/resourceTree")
+    @ApiOperation(value = "获取资源树")
+    public Result<List<ResourceTree>> getMenuTree(@RequestParam("resourceTypes") List<Byte> resourceTypes) {
+        return Result.success(resourceService.getResourceTree(resourceTypes));
     }
 }

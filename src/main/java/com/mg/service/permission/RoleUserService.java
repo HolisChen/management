@@ -26,4 +26,7 @@ public class RoleUserService {
     }
 
 
+    public void deleteByRoleId(Integer roleId) {
+        roleUserRepository.deleteByRoleId(roleId);
+    }
 }

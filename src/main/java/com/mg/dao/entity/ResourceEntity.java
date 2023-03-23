@@ -41,4 +41,7 @@ public class ResourceEntity extends BaseEntity {
     @Column(name = "resource_url")
     private String resourceUrl;
 
+    private Integer sort;
+
+    private String icon;
 }

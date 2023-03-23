@@ -1,7 +1,9 @@
 package com.mg.controller;
 
-import com.mg.dao.entity.UserEntity;
-import com.mg.dao.repository.UserRepository;
+import com.mg.domain.vo.base.Result;
+import com.mg.domain.vo.permission.UserVo;
+import com.mg.mapper.UserMapper;
+import com.mg.service.permission.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,9 +15,10 @@ import java.util.List;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final UserMapper userMapper;
     @GetMapping("/list")
-    public List<UserEntity> getUsers() {
-        return userRepository.findAll();
+    public Result<List<UserVo>> getUsers() {
+        return Result.success(userMapper.entityToVoList(userService.findAll()));
     }
 }

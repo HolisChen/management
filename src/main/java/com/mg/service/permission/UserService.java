@@ -1,11 +1,13 @@
 package com.mg.service.permission;
 
+import com.mg.dao.entity.UserEntity;
 import com.mg.dao.repository.UserRepository;
 import com.mg.domain.bo.base.UserBo;
 import com.mg.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,4 +25,9 @@ public class UserService {
         return Optional.ofNullable(userRepository.findByLoginIdAndDeleteAtIsNull(loginId))
                 .map(userMapper::entityToBo);
     }
+
+    public List<UserEntity> findAll() {
+        return userRepository.findAll();
+    }
+
 }

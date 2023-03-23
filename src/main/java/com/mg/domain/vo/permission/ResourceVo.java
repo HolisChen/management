@@ -1,4 +1,4 @@
-package com.mg.domain.vo.base;
+package com.mg.domain.vo.permission;
 
 import lombok.Data;
 
