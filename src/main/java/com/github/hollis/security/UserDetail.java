@@ -1,17 +1,21 @@
 package com.github.hollis.security;
 
 import com.github.hollis.domain.bo.base.UserBo;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Getter
 public class UserDetail implements UserDetails {
     private final UserBo userBo;
+    private Date loginTime;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

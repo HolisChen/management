@@ -1,7 +1,8 @@
-package com.github.hollis.security;
+package com.github.hollis.configuration;
 
 import com.github.hollis.dao.entity.ResourceEntity;
 import com.github.hollis.enums.ResourceTypeEnum;
+import com.github.hollis.security.UserDetail;
 import com.github.hollis.service.permission.PermissionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -28,16 +30,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    AuthenticationSuccessHandler successHandler,
-                                                   AuthenticationFailureHandler failureHandler) throws Exception {
+                                                   AuthenticationEntryPoint entryPoint) throws Exception {
         http.csrf().disable();
         http.authorizeHttpRequests()
                 .antMatchers("/**")
                 .permitAll()
                 .and()
+                .logout()
+                .disable()
                 .formLogin()
-                .successHandler(successHandler)
-                .failureHandler(failureHandler)
-                .permitAll();
+                .disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(entryPoint);
         return http.build();
     }
 
@@ -51,7 +55,7 @@ public class WebSecurityConfig {
     RoleHierarchy roleHierarchy(PermissionService permissionService){
         return authorities -> {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if ( principal instanceof  UserDetail) {
+            if ( principal instanceof UserDetail) {
                 UserDetail userDetail = (UserDetail) principal;
                 Integer userId = userDetail.getUserId();
                 return permissionService.getAuthorizedResource(userId)

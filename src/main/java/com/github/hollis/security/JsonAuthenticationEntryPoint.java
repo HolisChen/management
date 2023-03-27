@@ -2,12 +2,10 @@ package com.github.hollis.security;
 
 import com.alibaba.fastjson.JSON;
 import com.github.hollis.domain.vo.base.Result;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
@@ -16,17 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
-/**
- * 自定义登录失败处理器
- */
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class LoginFailureHandler implements AuthenticationFailureHandler {
+public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        // TODO: 2023/3/20 判断登录失败错误原因，将错误信息返回给前端
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         String errorMsg;
         if (e instanceof AccountExpiredException) {
             // 账号过期
@@ -50,8 +41,8 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         Result<String> result = Result.success(errorMsg);
         try (PrintWriter writer = response.getWriter()) {
-            response.setContentType(MediaType.APPLICATION_JSON.getType());
             response.setCharacterEncoding("UTF-8");
+            response.setContentType(MediaType.APPLICATION_JSON.getType());
             writer.write(JSON.toJSONString(result));
             writer.flush();
         }
