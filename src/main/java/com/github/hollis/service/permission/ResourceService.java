@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -82,6 +83,7 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
 
     private List<ResourceTree> buildChildren(Integer parentId, List<ResourceEntity> sources) {
         List<ResourceEntity> childList = sources.stream().filter(item -> Objects.equals(item.getParentId(), parentId))
+                .sorted(Comparator.comparing(ResourceEntity::getSort))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(childList)) {
             return Collections.emptyList();

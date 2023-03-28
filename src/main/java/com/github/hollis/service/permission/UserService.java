@@ -29,4 +29,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public List<UserEntity> findByRoleId(Integer roleId) {
+        return userRepository.findByRoleId(roleId);
+    }
+
 }

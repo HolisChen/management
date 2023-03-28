@@ -1,13 +1,18 @@
 package com.github.hollis.controller;
 
+import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.domain.dto.login.LoginDto;
 import com.github.hollis.domain.vo.base.Result;
+import com.github.hollis.security.LoginUser;
 import com.github.hollis.service.login.LoginService;
+import com.github.hollis.utils.UserUtil;
+import com.github.hollis.utils.WebUtil;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RequestMapping
 @Api
@@ -22,7 +27,8 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public Result<Void> logout(@RequestHeader(value = "token", required = false) String token) {
+    public Result<Void> logout() {
+        String token = Optional.ofNullable(UserUtil.getCurrentUser()).map(LoginUser::getToken).orElse(null);
         loginService.doLogout(token);
         return Result.success();
     }

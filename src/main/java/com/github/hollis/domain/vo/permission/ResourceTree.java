@@ -17,4 +17,5 @@ public class ResourceTree extends Tree<ResourceTree> {
     private Integer createBy;
     private Date createAt;
     private Integer sort;
+    private boolean checked;
 }

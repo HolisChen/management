@@ -2,6 +2,7 @@ package com.github.hollis.service.permission;
 
 import com.github.hollis.dao.entity.RoleUserEntity;
 import com.github.hollis.dao.repository.RoleUserRepository;
+import com.github.hollis.service.CRUDService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoleUserService {
+public class RoleUserService extends CRUDService<RoleUserEntity, Integer, RoleUserRepository> {
     private final RoleUserRepository roleUserRepository;
 
     /**
@@ -28,5 +29,14 @@ public class RoleUserService {
 
     public void deleteByRoleId(Integer roleId) {
         roleUserRepository.deleteByRoleId(roleId);
+    }
+
+    public List<RoleUserEntity> findByRoleId(Integer roleId) {
+        return roleUserRepository.findByRoleId(roleId);
+    }
+
+    @Override
+    protected RoleUserRepository getDao() {
+        return roleUserRepository;
     }
 }

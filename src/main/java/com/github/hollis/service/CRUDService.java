@@ -43,4 +43,8 @@ public abstract class CRUDService<T, ID extends Serializable, Rep extends JpaRep
         }
         throw new UnsupportedOperationException("不支持逻辑删除！");
     }
+
+    public void saveAll(Collection<T> entities) {
+        getDao().saveAll(entities);
+    }
 }

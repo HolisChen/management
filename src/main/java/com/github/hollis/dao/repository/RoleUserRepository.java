@@ -10,4 +10,5 @@ import java.util.List;
 public interface RoleUserRepository extends JpaRepository<RoleUserEntity, Integer> {
     List<RoleUserEntity> findByUserId(Integer userId);
     int deleteByRoleId(Integer roleId);
+    List<RoleUserEntity> findByRoleId(Integer roleId);
 }
