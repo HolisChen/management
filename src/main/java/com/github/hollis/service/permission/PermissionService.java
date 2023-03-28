@@ -94,7 +94,7 @@ public class PermissionService {
         //获取基础资源树
         List<ResourceTree> resourceTree = resourceService.getResourceTree(Arrays.stream(ResourceTypeEnum.values()).map(ResourceTypeEnum::getCode).collect(Collectors.toList()));
         //获取角色绑定的resource集合
-        Set<Integer> authorizedResourceIdSet = new HashSet(roleResourceService.getResourceIdsByRoleIds(Collections.singletonList(roleId))) ;
+        Set<Integer> authorizedResourceIdSet = roleResourceService.findByRoleId(roleId).stream().map(RoleResourceEntity::getResourceId).collect(Collectors.toSet());
         //遍历树
         setChecked(resourceTree, authorizedResourceIdSet);
         return resourceTree;

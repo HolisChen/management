@@ -1,17 +1,17 @@
 package com.github.hollis.controller;
 
-import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.domain.dto.login.LoginDto;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.security.LoginUser;
 import com.github.hollis.service.login.LoginService;
 import com.github.hollis.utils.UserUtil;
-import com.github.hollis.utils.WebUtil;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RequestMapping

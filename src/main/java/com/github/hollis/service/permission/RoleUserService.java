@@ -39,4 +39,5 @@ public class RoleUserService extends CRUDService<RoleUserEntity, Integer, RoleUs
     protected RoleUserRepository getDao() {
         return roleUserRepository;
     }
+
 }

@@ -32,7 +32,7 @@ public class RoleController {
 
     @ApiOperation(value = "获取角色列表")
     @GetMapping
-    @OperationLog(type = OperationTypeEnum.QUERY, target = OperationTargetEnum.ROLE)
+//    @OperationLog(type = OperationTypeEnum.QUERY, target = OperationTargetEnum.ROLE)
     public Result<List<RoleVo>> getRoleList() {
         return Result.success(roleMapper.entityToVos(roleService.findAllRoles()));
     }
@@ -69,6 +69,7 @@ public class RoleController {
 
     @ApiOperation(value = "保存角色绑定的用户列表")
     @PostMapping("/{roleId}/userList")
+    @OperationLog(type = OperationTypeEnum.SAVE, target = OperationTargetEnum.ROLE_USER, content = "保存用户角色关联表")
     public Result<Void> saveRoleUser(@PathVariable Integer roleId, @RequestBody List<Integer> userIds) {
         permissionService.saveRoleUser(roleId, userIds);
         return Result.success();
@@ -82,6 +83,7 @@ public class RoleController {
 
     @ApiOperation(value = "保存角色绑定的资源列表")
     @PostMapping("/{roleId}/resource")
+    @OperationLog(type = OperationTypeEnum.SAVE, target = OperationTargetEnum.ROLE_RESOURCE, content = "保存角色资源关联表")
     public Result<Void> saveRoleResource(@PathVariable Integer roleId, @RequestBody List<Integer> resourceIds) {
         permissionService.saveRoleResource(roleId, resourceIds);
         return Result.success();

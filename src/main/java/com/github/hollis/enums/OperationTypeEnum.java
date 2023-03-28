@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum OperationTypeEnum {
-    CREATE, UPDATE, DELETE, UPLOAD,QUERY;
+    CREATE, UPDATE, DELETE, UPLOAD,QUERY, SAVE;
 }
