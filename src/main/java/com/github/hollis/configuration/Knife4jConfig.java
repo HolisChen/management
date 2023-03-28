@@ -1,5 +1,8 @@
 package com.github.hollis.configuration;
 
+import com.github.hollis.constant.SecurityConstants;
+import com.github.hollis.domain.dto.login.LoginDto;
+import com.github.hollis.service.login.LoginService;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementPortType;
@@ -13,8 +16,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.ModelRef;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
@@ -28,8 +34,16 @@ import java.util.List;
 @EnableSwagger2WebMvc
 public class Knife4jConfig {
     @Bean(value = "defaultApi2")
-    public Docket defaultApi2() {
-        Docket docket=new Docket(DocumentationType.SWAGGER_2)
+    public Docket defaultApi2(LoginService loginService) {
+        String token = "";
+        try {
+            LoginDto loginDto = new LoginDto();
+            loginDto.setLoginId("admin");
+            loginDto.setPassword("123");
+            token = loginService.doLogin(loginDto);
+        }catch (Exception e) {
+        }
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
                         //.title("swagger-bootstrap-ui-demo RESTful APIs")
                         .description("")
@@ -43,8 +57,24 @@ public class Knife4jConfig {
                 //这里指定Controller扫描包路径
                 .apis(RequestHandlerSelectors.basePackage("com.github.hollis.controller"))
                 .paths(PathSelectors.any())
-                .build();
+                .build()
+                .globalOperationParameters(getParameterList(token));
         return docket;
+    }
+
+    /**
+     * 添加head参数配置
+     */
+    private List<Parameter> getParameterList(String token) {
+        ParameterBuilder clientIdTicket = new ParameterBuilder();
+        List<Parameter> pars = new ArrayList<Parameter>();
+        clientIdTicket.name(SecurityConstants.HEADER_TOKEN).description("token令牌")
+                .modelRef(new ModelRef("string"))
+                .parameterType("header")
+                .defaultValue(token)
+                .required(false).build(); //设置false，表示clientId参数 非必填,可传可不传！
+        pars.add(clientIdTicket.build());
+        return pars;
     }
 
     @Bean

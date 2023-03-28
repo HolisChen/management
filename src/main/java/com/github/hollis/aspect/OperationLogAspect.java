@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.hollis.dao.entity.LogEntity;
 import com.github.hollis.service.base.LogService;
 import com.github.hollis.utils.UserUtil;
+import com.github.hollis.utils.WebUtil;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,15 +34,14 @@ public class OperationLogAspect {
         Object[] args = joinPoint.getArgs();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         OperationLog log = signature.getMethod().getAnnotation(OperationLog.class);
-        HttpServletRequest request =
-                ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+        HttpServletRequest request =  WebUtil.getHttpServletRequest();
         LogEntity logEntity = new LogEntity();
         logEntity.setCreateBy(userId);
         logEntity.setType(log.type().name());
         logEntity.setTarget(log.target().getCode());
         logEntity.setContent(log.content());
         logEntity.setParameter(args == null ? "" : JSON.toJSONString(args));
-        logEntity.setIp(request.getRemoteAddr());
+        logEntity.setIp(WebUtil.getIpAddress(request));
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed(args);

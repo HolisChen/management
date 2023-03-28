@@ -30,4 +30,11 @@ public class Result<T> {
         r.setMsg(msg);
         return r;
     }
+
+    public static <T>  Result<T> accessDenied(String msg) {
+        Result<T> r = new Result<>();
+        r.setCode(HttpStatus.FORBIDDEN.value());
+        r.setMsg(msg);
+        return r;
+    }
 }

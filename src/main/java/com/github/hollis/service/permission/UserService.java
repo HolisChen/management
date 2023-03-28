@@ -21,9 +21,8 @@ public class UserService {
      * @param loginId
      * @return
      */
-    public Optional<UserBo> getByLoginId(String loginId) {
-        return Optional.ofNullable(userRepository.findByLoginIdAndDeleteAtIsNull(loginId))
-                .map(userMapper::entityToBo);
+    public Optional<UserEntity> getByLoginId(String loginId) {
+        return Optional.ofNullable(userRepository.findByLoginIdAndDeleteAtIsNull(loginId));
     }
 
     public List<UserEntity> findAll() {
