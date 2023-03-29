@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom'
 import { Layout, Menu, Breadcrumb } from 'antd'
 import { getMenuList } from '../service/resource'
+import { getCurrentUser } from '../service/user'
+import LoginUser from '../components/LoginUser'
 import '../css/home.css'
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -49,12 +51,15 @@ function buildBreadcrumbItems(menus, location) {
 }
 
 export default function Home() {
-  const [menus, setMenus] = useState([]);
+  const [menus, setMenus] = useState([])
+  const [currentUser, setCurrentUser] = useState({})
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     async function fetchData() {
-      const m = await getMenuList();
-      setMenus(m)
+      const menu = await getMenuList();
+      const loginUser = await getCurrentUser();
+      setMenus(menu)
+      setCurrentUser(loginUser)
     }
     fetchData();
   }, [])
@@ -73,6 +78,7 @@ export default function Home() {
       <Layout>
         <Header className='header'>
           <Breadcrumb className='crumb' items={breadcrumbItems} />
+          <LoginUser user={currentUser}></LoginUser>
         </Header>
         <Content>
           <Outlet />

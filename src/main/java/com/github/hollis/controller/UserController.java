@@ -4,7 +4,9 @@ import com.github.hollis.domain.dto.permission.CreateUserDto;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.domain.vo.permission.UserVo;
 import com.github.hollis.mapper.UserMapper;
+import com.github.hollis.security.LoginUser;
 import com.github.hollis.service.permission.UserService;
+import com.github.hollis.utils.UserUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +35,12 @@ public class UserController {
         return Result.success(userMapper.entityToVoList(userService.findAll()));
     }
 
+
+    @GetMapping("/currentUserInfo")
+    @ApiOperation(value = "获取当前登录用户信息")
+    public Result<LoginUser> getCurrentUserInfo() {
+        return Result.success(UserUtil.getCurrentUser());
+    }
 
     @PostMapping
     @ApiOperation(value = "添加用户")
