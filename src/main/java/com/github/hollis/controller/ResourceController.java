@@ -8,6 +8,7 @@ import com.github.hollis.domain.dto.permission.UpdateResourceDto;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.enums.OperationTargetEnum;
 import com.github.hollis.enums.OperationTypeEnum;
+import com.github.hollis.enums.ResourceTypeEnum;
 import com.github.hollis.mapper.ResourceMapper;
 import com.github.hollis.service.permission.PermissionService;
 import com.github.hollis.service.permission.ResourceService;
@@ -17,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -56,7 +58,13 @@ public class ResourceController {
 
     @GetMapping("/resourceTree")
     @ApiOperation(value = "获取资源树")
-    public Result<List<ResourceTree>> getMenuTree(@RequestParam("resourceTypes") List<Byte> resourceTypes) {
-        return Result.success(resourceService.getResourceTree(resourceTypes));
+    public Result<List<ResourceTree>> getResourceTree() {
+        return Result.success(resourceService.getResourceTree(ResourceTypeEnum.all()));
+    }
+
+    @GetMapping("/menu")
+    @ApiOperation(value = "获取当前用户有权限的菜单")
+    public Result<List<ResourceTree>> getAuthorizedMenu() {
+        return Result.success(permissionService.getAuthorizedMenu(UserUtil.getCurrentUserId()));
     }
 }

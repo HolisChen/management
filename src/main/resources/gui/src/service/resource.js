@@ -19,10 +19,14 @@ function buildMenu(res) {
     return result;
 }
 
-export function getMenuList(setMenu) {
-    request.get(`/api/resource/resourceTree?resourceTypes=2,3`)
+export async function getMenuList() {
+    return request.get(`/api/resource/menu`, {
+        headers : {
+            "x-header-token":"e6dd29154f944bbea28857375b500399"
+        }
+    })
     .then(res => {
-        setMenu(buildMenu(res))
+        return buildMenu(res)
     })
 
 }

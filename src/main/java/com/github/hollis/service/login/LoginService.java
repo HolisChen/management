@@ -1,6 +1,7 @@
 package com.github.hollis.service.login;
 
 import com.alibaba.fastjson.JSON;
+import com.github.hollis.constant.RedisConstants;
 import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.domain.dto.login.LoginDto;
@@ -48,7 +49,7 @@ public class LoginService {
         }
         //生成token
         String token = UUID.randomUUID().toString().replace("-", "");
-        stringRedisTemplate.opsForValue().set(token, JSON.toJSONString(new LoginUser(user, ip, token)), SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(RedisConstants.LOGIN_TOKEN_PREFIX + token, JSON.toJSONString(new LoginUser(user, ip, token)), SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
         return token;
     }
 

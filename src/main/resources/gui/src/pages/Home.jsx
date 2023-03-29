@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom'
 import { Layout, Menu, Breadcrumb } from 'antd'
-import { AppleFilled } from '@ant-design/icons'
 import { getMenuList } from '../service/resource'
 import '../css/home.css'
 const { Header, Content, Footer, Sider } = Layout;
@@ -27,19 +26,11 @@ function initCrumbMap(menus) {
   return result
 }
 
-export default function Home() {
-  const [menus, setMenus] = useState([]);
-  useEffect(() => {
-    getMenuList(setMenus)
-  }, [])
-  const [collapsed, setCollapsed] = useState(false);
-  const naviate = useNavigate()
-  const menuClick = (e) => {
-    const { key } = e
-    naviate(key)
-  }
+/**
+ * 创建面包屑
+ */
+function buildBreadcrumbItems(menus, location) {
   const crumbMap = initCrumbMap(menus)
-  const location = useLocation();
   const pathSnippets = location.pathname.split('/').filter((i) => i);
   const extraBreadcrumbItems = pathSnippets.map((_, index) => {
     const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
@@ -54,12 +45,29 @@ export default function Home() {
       key: 'home',
     },
   ].concat(extraBreadcrumbItems);
+  return breadcrumbItems;
+}
+
+export default function Home() {
+  const [menus, setMenus] = useState([]);
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    async function fetchData() {
+      const m = await getMenuList();
+      setMenus(m)
+    }
+    fetchData();
+  }, [])
+  const naviate = useNavigate()
+  const menuClick = (e) => {
+    const { key } = e
+    naviate(key)
+  }
+  const location = useLocation()
+  const breadcrumbItems = buildBreadcrumbItems(menus, location)
   return (
     <Layout style={{ minHeight: '100vh', }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(val) => setCollapsed(val)}>
-        <div className='logo'>
-          <AppleFilled style={{ fontSize: '32px', textAlign: 'center' }} />
-        </div>
         <Menu items={menus} mode="inline" onClick={menuClick} theme='dark' defaultSelectedKeys={"/dashboard"} />
       </Sider>
       <Layout>

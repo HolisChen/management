@@ -1,6 +1,7 @@
 package com.github.hollis.security;
 
 import com.alibaba.fastjson.JSON;
+import com.github.hollis.constant.RedisConstants;
 import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.dao.entity.ResourceEntity;
 import com.github.hollis.enums.ResourceTypeEnum;
@@ -35,7 +36,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         String token = requestResponseHolder.getRequest().getHeader(SecurityConstants.HEADER_TOKEN);
         if (token != null) {
-            String userJson = stringRedisTemplate.opsForValue().get(token);
+            String userJson = stringRedisTemplate.opsForValue().get(RedisConstants.LOGIN_TOKEN_PREFIX + token);
             if (StringUtils.hasText(userJson)) {
                 LoginUser loginUser = JSON.parseObject(userJson, LoginUser.class);
                 List<SimpleGrantedAuthority> authorities = permissionService.getAuthorizedResource(loginUser.getUserId())
@@ -61,7 +62,7 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
             if (principal instanceof LoginUser) {
                 LoginUser loginUser = (LoginUser) principal;
                 //续期
-                stringRedisTemplate.expire(loginUser.getToken(),SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
+                stringRedisTemplate.expire(RedisConstants.LOGIN_TOKEN_PREFIX + loginUser.getToken(),SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
             }
         }
     }

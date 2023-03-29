@@ -20,20 +20,25 @@ const routes = [
         element: <Home />,
         children: [
             {
-                path: "user",
-                element: <User/>,
-            },
-            {
-                path: "role",
-                element: <Role/>,
-            },
-            {
-                path: "menu",
-                element: <Menu/>,
-            },
-            {
                 path:"dashboard",
                 element: <Dashboard/>,
+            },
+            {
+                path:"systemSetting",
+                children: [
+                    {
+                        path: "user",
+                        element: <User/>,
+                    },
+                    {
+                        path: "role",
+                        element: <Role/>,
+                    },
+                    {
+                        path: "menu",
+                        element: <Menu/>,
+                    }
+                ]
             }
         ]
     }

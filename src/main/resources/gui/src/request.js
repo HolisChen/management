@@ -10,7 +10,7 @@ instance.interceptors.response.use(res => {
         if (code === 200) { 
             return Promise.resolve(data.data)
         } else {
-            console.log('业务异常', data.msg)
+            return Promise.reject(data)
         }
 
     } else {

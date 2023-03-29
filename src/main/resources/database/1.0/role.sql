@@ -17,3 +17,5 @@ CREATE TABLE IF NOT EXISTS `t_role`
   DEFAULT CHARSET = utf8mb4
   COMMENT = '角色表';
 
+INSERT INTO management.t_role (role_code, role_name, role_description, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('ADMIN', '管理员角色', '管理员角色', '2023-03-28 06:29:25', 1, '2023-03-28 06:29:25', null, null, null);
+

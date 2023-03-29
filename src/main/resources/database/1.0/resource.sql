@@ -21,4 +21,9 @@ CREATE TABLE IF NOT EXISTS `t_resource`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COMMENT = '资源表';
-
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('DASHBOARD', '工作台', '', '/dashboard', 2, '', -1, 0, '2023-03-29 07:24:26', 1, '2023-03-29 07:24:26', null, null, null);
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('SYSTEM', '系统管理', '系统管理', '/systemSetting', 2, '', 0, 0, '2023-03-28 06:24:07', 1, '2023-03-29 07:26:13', null, null, null);
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('USER', '用户管理', '', '/systemSetting/user', 2, '', 0, 2, '2023-03-28 06:25:58', 1, '2023-03-28 06:25:58', null, null, null);
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('ROLE', '角色管理', '', '/systemSetting/role', 2, '', 0, 2, '2023-03-28 06:26:18', 1, '2023-03-28 06:26:18', null, null, null);
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('RESOURCE', '菜单管理', '', '/systemSetting/menu', 2, '', 0, 2, '2023-03-28 06:27:02', 1, '2023-03-28 06:27:02', null, null, null);
+INSERT INTO t_resource (resource_code, resource_name, resource_description, resource_url, resource_type, icon, sort, parent_id, create_at, create_by, update_at, update_by, delete_at, delete_by) VALUES ('LOG QUERY', '日志查询', '日志查询', '/logQuery', 2, '', 0, 0, '2023-03-28 06:25:31', 1, '2023-03-28 06:25:31', null, null, null);

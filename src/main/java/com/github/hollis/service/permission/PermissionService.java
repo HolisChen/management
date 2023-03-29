@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,6 @@ public class PermissionService {
      * @param userId
      * @return
      */
-//    @Cacheable(cacheNames = "RESOURCE", key = "#userId")
     public List<ResourceEntity> getAuthorizedResource(Integer userId) {
         return resourceService.getAuthorizedResources(userId);
     }
@@ -132,5 +132,14 @@ public class PermissionService {
             }).collect(Collectors.toList());
             roleResourceService.saveAll(inserted);
         }
+    }
+
+    public List<ResourceTree> getAuthorizedMenu(Integer userId) {
+        List<ResourceEntity> authorizedResource = this.getAuthorizedResource(userId)
+                .stream()
+                .filter(item -> Objects.equals(item.getResourceType(),ResourceTypeEnum.MENU.getCode()))
+                .collect(Collectors.toList());
+        return resourceService.buildTree(0, authorizedResource);
+
     }
 }

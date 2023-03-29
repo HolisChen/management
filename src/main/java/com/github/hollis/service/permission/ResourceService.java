@@ -78,10 +78,10 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
 
     public List<ResourceTree> getResourceTree(List<Byte> resourceTypes) {
         List<ResourceEntity> resources = repository.findAllByResourceTypeInAndDeleteAtIsNull(resourceTypes);
-        return buildChildren(0, resources);
+        return buildTree(0, resources);
     }
 
-    private List<ResourceTree> buildChildren(Integer parentId, List<ResourceEntity> sources) {
+    public List<ResourceTree> buildTree(Integer parentId, List<ResourceEntity> sources) {
         List<ResourceEntity> childList = sources.stream().filter(item -> Objects.equals(item.getParentId(), parentId))
                 .sorted(Comparator.comparing(ResourceEntity::getSort))
                 .collect(Collectors.toList());
@@ -92,7 +92,7 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
         return childList.stream()
                 .map(item -> {
                     ResourceTree resourceTree = resourceMapper.entityToMenuTree(item);
-                    resourceTree.setChildren(buildChildren(item.getId(), sources));
+                    resourceTree.setChildren(this.buildTree(item.getId(), sources));
                     return resourceTree;
                 })
                 .collect(Collectors.toList());
