@@ -62,11 +62,15 @@ const columns = [
 //     console.log(selected, selectedRows, changeRows);
 //   },
 // };
+const getData = () => {
+  return getResourceTree();
+}
+
 const Menu = () => {
   const [resources, setResources] = useState([])
   useEffect(() => {
     const initFetch = async () => {
-      setResources(await getResourceTree())
+      setResources(await getData())
     }
     initFetch()
   }, [])
