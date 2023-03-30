@@ -22,8 +22,10 @@ public class WebSecurityConfig {
                                                    SecurityContextRepository securityContextRepository) throws Exception {
         http.csrf().disable();
         http.authorizeHttpRequests()
-                .antMatchers("/**")
+                .antMatchers("/api/login","/api/logout","/swagger-resources","/v2/api-docs","/webjars/**","/doc.html")
                 .permitAll()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .logout()
                 .disable()

@@ -11,11 +11,9 @@ export default function Login() {
     }
   }
   const onFinish = (values) => {
-    console.log('Success:', values);
     handleLogin(values);
   };
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
   };
 
   return (
@@ -46,7 +44,7 @@ export default function Login() {
             },
           ]}
         >
-          <Input placeholder='输入登录ID'/>
+          <Input placeholder='输入登录ID' />
         </Form.Item>
 
         <Form.Item
@@ -59,7 +57,7 @@ export default function Login() {
             },
           ]}
         >
-          <Input.Password placeholder='请输入密码'/>
+          <Input.Password placeholder='请输入密码' />
         </Form.Item>
 
         <Form.Item

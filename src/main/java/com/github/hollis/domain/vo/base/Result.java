@@ -37,4 +37,11 @@ public class Result<T> {
         r.setMsg(msg);
         return r;
     }
+
+    public static <T>  Result<T> unauthorized(String msg) {
+        Result<T> r = new Result<>();
+        r.setCode(HttpStatus.UNAUTHORIZED.value());
+        r.setMsg(msg);
+        return r;
+    }
 }
