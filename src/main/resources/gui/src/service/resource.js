@@ -30,15 +30,15 @@ export async function getMenuList() {
 export async function getResourceTree() {
     return request.get('/api/resource/resourceTree')
         .then(res => {
-            const filterChild = (tree) => {
+            const removeEmptyChild = (tree) => {
                 if(tree && tree.children && tree.children.length) {
-                    tree.children.forEach(child => filterChild(child))
+                    tree.children.forEach(child => removeEmptyChild(child))
                 } else {
                     delete tree.children
                 }
             }
             if(res && res.length) {
-                res.forEach(tree => filterChild(tree))
+                res.forEach(tree => removeEmptyChild(tree))
             }
             return res;
         }, err => [])
