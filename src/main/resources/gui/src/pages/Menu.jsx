@@ -1,10 +1,28 @@
-import { Form, InputNumber, Popconfirm, Table, Typography, Input, Select } from 'antd';
+import { Form, InputNumber, Popconfirm, Table, Typography, Input, Select, Button, Space, Tooltip, Modal, TreeSelect } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
-import { getResourceTree } from '../service/resource';
+import { getResourceTree, updateResource , addResource} from '../service/resource';
 import { RESOURCE_TYPES, RESOURCE_OPTIONS } from '../constants/code_mapping';
 
 const queryList = () => {
   return getResourceTree();
+}
+
+
+const buildResourceTreeSelect = (resources) => {
+  if (resources.length) {
+    return resources.map(resource => {
+      const treeData = {
+        value: resource.id,
+        title: resource.resourceName,
+      }
+      if (resource.children && resource.children.length) {
+        treeData.children = buildResourceTreeSelect(resource.children)
+      }
+      return treeData;
+    })
+  }
+  return [];
 }
 
 const EditableCell = ({
@@ -43,13 +61,35 @@ const EditableCell = ({
 
 const Menu = () => {
   const [form] = Form.useForm();
+  const [addForm] = Form.useForm();
   const [resources, setResources] = useState([])
   const [editingId, setEditingId] = useState('')
+  const [openAdd, setOpenAdd] = useState(false);
+  const [resourceTreeSelectData, setResourceTreeSelectData] = useState([])
+  useEffect(() => {
+    const tree = buildResourceTreeSelect(resources);
+    setResourceTreeSelectData(tree)
+  }, [resources])
   const isEditing = (row) => row.id === editingId
   const cancel = () => {
     setEditingId('');
   };
-  const save = () => { }
+  const save = async (record) => {
+    try {
+      const row = await form.validateFields();
+      await updateResource({ ...record, ...row })
+      setEditingId('')
+      query()
+    } catch (err) {
+      //validate failed
+    }
+
+  }
+
+  const query = async () => {
+    await queryList().then(res => setResources(res));
+  }
+
   const edit = (record) => {
     form.setFieldsValue({
       ...record,
@@ -123,7 +163,7 @@ const Menu = () => {
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save(record.key)}
+              onClick={() => save(record)}
               style={{
                 marginRight: 8,
               }}
@@ -131,7 +171,7 @@ const Menu = () => {
               保存
             </Typography.Link>
             <Popconfirm title="确定取消吗？" onConfirm={cancel} okText="确定" cancelText="取消">
-              <a>取消</a>
+              <Typography.Link>取消</Typography.Link>
             </Popconfirm>
           </span>
         ) : (
@@ -156,7 +196,7 @@ const Menu = () => {
           title: col.title,
           dataType: col.dataType,
           selectoptions: col.selectoptions,
-          rules:col.rules,
+          rules: col.rules,
           editing: isEditing(record),
         }
       },
@@ -164,29 +204,99 @@ const Menu = () => {
   });
 
   useEffect(() => {
-    queryList()
-      .then(res => setResources(res))
-      .catch(err => { })
+    query()
   }, [])
 
+  const cancelAdd = () => {
+    setOpenAdd(false);
+    addForm.resetFields()
+  }
+
+  const handleAdd = async () => {
+    let data;
+    try {
+      data = await addForm.validateFields();
+    }catch(err) {
+      return;
+    }
+    if(data) {
+      await addResource(data)
+      cancelAdd();
+      query();
+    }
+  }
+
   return (
-    <Form form={form} component={false}>
-      <Table
-        columns={mergedColumns}
-        bordered
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        // rowSelection={{
-        //   // ...rowSelection,
-        //   checkStrictly: false,
-        // }}
-        dataSource={resources}
-        rowKey="id"
-      />
-    </Form>
+    <>
+      <Space>
+        <Tooltip title="search">
+          <Button type="primary" shape="circle" icon={<SearchOutlined />} onClick={() => query()} />
+        </Tooltip>
+        <Button onClick={() => setOpenAdd(true)}>新增</Button>
+        <Modal open={openAdd} onCancel={() => cancelAdd()} onOk={()=> handleAdd()}>
+          <Form form={addForm} component={false} labelCol={10} wrapperCol={4} autoComplete={false} >
+            <Form.Item label='父级资源' name='parentId' style={{ marginTop: '30px' }} >
+              <TreeSelect treeData={resourceTreeSelectData} />
+            </Form.Item>
+            <Form.Item label='资源编码' name='resourceCode' rules={[
+              {
+                required: true,
+                message: '资源编码必填'
+              },
+              {
+                maxLength: 20
+              }
+            ]} >
+              <Input />
+            </Form.Item>
+            <Form.Item label='资源名称' name='resourceName' rules={[
+              {
+                required: true,
+                message: '资源名称必填'
+              }
+            ]} >
+              <Input />
+            </Form.Item>
+            <Form.Item label='资源类型' name='resourceType' rules={[
+              {
+                required: true,
+                message: '资源名称必填'
+              }
+            ]} >
+              <Select options={RESOURCE_OPTIONS} />
+            </Form.Item>
+            <Form.Item label='资源描述' name='resourceDescription' >
+              <Input />
+            </Form.Item>
+            <Form.Item label='菜单路由' name='resourceUrl' >
+              <Input />
+            </Form.Item>
+            <Form.Item label='资源图标' name='icon' >
+              <Input />
+            </Form.Item>
+
+
+          </Form>
+        </Modal>
+      </Space>
+      <Form form={form} component={false}>
+        <Table
+          columns={mergedColumns}
+          bordered
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          // rowSelection={{
+          //   // ...rowSelection,
+          //   checkStrictly: false,
+          // }}
+          dataSource={resources}
+          rowKey="id"
+        />
+      </Form>
+    </>
   );
 };
 export default Menu;

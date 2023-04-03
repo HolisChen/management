@@ -1,4 +1,5 @@
 import request from "../request"
+import { message } from "antd";
 
 function buildMenu(res) {
     let result = []
@@ -42,4 +43,18 @@ export async function getResourceTree() {
             }
             return res;
         }, err => [])
+}
+
+export async function updateResource(payload) {
+    return request.put("/api/resource",payload)
+        .then(res => {
+            message.success('保存成功')
+        })
+}
+
+export async function addResource(payload) { 
+    return request.post("/api/resource",payload)
+        .then(res => {
+            message.success('新建成功')
+        })
 }
