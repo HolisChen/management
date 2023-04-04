@@ -1,13 +1,20 @@
-import { Form, InputNumber, Popconfirm, Table, Typography, Input, Select, Button, Space, Tooltip, Modal, TreeSelect } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import {
+  Form,
+  InputNumber,
+  Popconfirm,
+  Table,
+  Typography,
+  Input,
+  Select,
+  Button,
+  Space,
+  Tooltip,
+  Modal,
+  TreeSelect
+} from 'antd';
 import { useState, useEffect } from 'react';
-import { getResourceTree, updateResource , addResource} from '../service/resource';
+import {getResourceTree, updateResource, addResource, removeResource} from '../service/resource';
 import { RESOURCE_TYPES, RESOURCE_OPTIONS } from '../constants/code_mapping';
-
-const queryList = () => {
-  return getResourceTree();
-}
-
 
 const buildResourceTreeSelect = (resources) => {
   if (resources.length) {
@@ -65,29 +72,34 @@ const Menu = () => {
   const [resources, setResources] = useState([])
   const [editingId, setEditingId] = useState('')
   const [openAdd, setOpenAdd] = useState(false);
+  const [deleteKeys, setDeleteKeys] = useState([]);
   const [resourceTreeSelectData, setResourceTreeSelectData] = useState([])
   useEffect(() => {
     const tree = buildResourceTreeSelect(resources);
     setResourceTreeSelectData(tree)
   }, [resources])
+
   const isEditing = (row) => row.id === editingId
+
   const cancel = () => {
     setEditingId('');
   };
-  const save = async (record) => {
+  const saveEdit = async (record) => {
     try {
       const row = await form.validateFields();
       await updateResource({ ...record, ...row })
       setEditingId('')
-      query()
+      await query()
     } catch (err) {
       //validate failed
     }
-
   }
 
   const query = async () => {
-    await queryList().then(res => setResources(res));
+    await getResourceTree()
+      .then(res => {
+        setResources(res);
+      });
   }
 
   const edit = (record) => {
@@ -163,7 +175,7 @@ const Menu = () => {
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save(record)}
+              onClick={() => saveEdit(record)}
               style={{
                 marginRight: 8,
               }}
@@ -216,37 +228,55 @@ const Menu = () => {
     let data;
     try {
       data = await addForm.validateFields();
-    }catch(err) {
+    } catch (err) {
       return;
     }
-    if(data) {
+    if (data) {
       await addResource(data)
       cancelAdd();
-      query();
+      await query();
     }
   }
 
+  /**
+   * 处理资源选中改变
+   * @param selectedRowKeys
+   * @param selectedRows
+   */
+  const handleSelectChange = (selectedRowKeys, selectedRows) => {
+    setDeleteKeys(selectedRowKeys)
+  }
+
+  /**
+   * 删除数据
+   */
+  const handleDelete =  () => {
+     removeResource(deleteKeys).then(res => {
+       setDeleteKeys([])
+       query()
+    })
+  }
   return (
     <>
-      <Space>
+      <Space style={{marginLeft:'15px'}}>
         <Tooltip title="search">
-          <Button type="primary" shape="circle" icon={<SearchOutlined />} onClick={() => query()} />
+          <Button type="primary"  onClick={() => query()}>查询</Button>
         </Tooltip>
         <Button onClick={() => setOpenAdd(true)}>新增</Button>
-        <Modal open={openAdd} onCancel={() => cancelAdd()} onOk={()=> handleAdd()}>
-          <Form form={addForm} component={false} labelCol={10} wrapperCol={4} autoComplete={false} >
-            <Form.Item label='父级资源' name='parentId' style={{ marginTop: '30px' }} >
+        <Popconfirm title={'删除资源'} description={'确定要删除所选资源吗？'} okText={'是的'} cancelText={'点错了'} onConfirm={() => {handleDelete()}} disabled={!deleteKeys.length}>
+          <Button disabled={!deleteKeys.length} type={'primary'} danger>删除所选</Button>
+        </Popconfirm>
+        <Modal open={openAdd} onCancel={() => cancelAdd()} onOk={() => handleAdd()}>
+          <Form form={addForm} component={false} labelCol={10} wrapperCol={4} autoComplete={false}>
+            <Form.Item label='父级资源' name='parentId' style={{ marginTop: '30px' }}>
               <TreeSelect treeData={resourceTreeSelectData} />
             </Form.Item>
             <Form.Item label='资源编码' name='resourceCode' rules={[
               {
                 required: true,
                 message: '资源编码必填'
-              },
-              {
-                maxLength: 20
               }
-            ]} >
+            ]}>
               <Input />
             </Form.Item>
             <Form.Item label='资源名称' name='resourceName' rules={[
@@ -254,7 +284,7 @@ const Menu = () => {
                 required: true,
                 message: '资源名称必填'
               }
-            ]} >
+            ]}>
               <Input />
             </Form.Item>
             <Form.Item label='资源类型' name='resourceType' rules={[
@@ -262,20 +292,18 @@ const Menu = () => {
                 required: true,
                 message: '资源名称必填'
               }
-            ]} >
+            ]}>
               <Select options={RESOURCE_OPTIONS} />
             </Form.Item>
-            <Form.Item label='资源描述' name='resourceDescription' >
+            <Form.Item label='资源描述' name='resourceDescription'>
               <Input />
             </Form.Item>
-            <Form.Item label='菜单路由' name='resourceUrl' >
+            <Form.Item label='菜单路由' name='resourceUrl'>
               <Input />
             </Form.Item>
-            <Form.Item label='资源图标' name='icon' >
+            <Form.Item label='资源图标' name='icon'>
               <Input />
             </Form.Item>
-
-
           </Form>
         </Modal>
       </Space>
@@ -288,10 +316,11 @@ const Menu = () => {
               cell: EditableCell,
             },
           }}
-          // rowSelection={{
-          //   // ...rowSelection,
-          //   checkStrictly: false,
-          // }}
+          rowSelection={{
+            // ...rowSelection,
+            checkStrictly: true,
+            onChange: handleSelectChange
+          }}
           dataSource={resources}
           rowKey="id"
         />

@@ -58,3 +58,10 @@ export async function addResource(payload) {
             message.success('新建成功')
         })
 }
+
+export async function removeResource(payload) {
+    return request.delete("/api/resource", {data :payload} )
+        .then(res => {
+            message.success('删除成功')
+        })
+}
