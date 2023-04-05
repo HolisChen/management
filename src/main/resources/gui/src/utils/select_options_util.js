@@ -3,5 +3,5 @@
  * @param mapping
  */
 export function convertFromMap(mapping) {
-    return Object.keys(mapping).map(key => ({label: mapping[key], value: key}))
+    return Object.keys(mapping).map(key => ({label: mapping[key], value: Number(key)}))
 }

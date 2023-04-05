@@ -1,6 +1,5 @@
 import {
   Form,
-  InputNumber,
   Popconfirm,
   Table,
   Typography,
@@ -15,6 +14,7 @@ import {
 import { useState, useEffect } from 'react';
 import {getResourceTree, updateResource, addResource, removeResource} from '../service/resource';
 import { RESOURCE_TYPES, RESOURCE_OPTIONS } from '../constants/code_mapping';
+import EditableCell from '../components/EditableCell';
 
 const buildResourceTreeSelect = (resources) => {
   if (resources.length) {
@@ -31,40 +31,6 @@ const buildResourceTreeSelect = (resources) => {
   }
   return [];
 }
-
-const EditableCell = ({
-  editing,
-  dataIndex,
-  title,
-  dataType,
-  record,
-  index,
-  children,
-  selectoptions,
-  rules,
-  ...restProps
-}) => {
-  const inputNode = dataType === 'number' ?
-    <InputNumber /> : dataType === 'select' ?
-      <Select options={selectoptions} /> : <Input />;
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{
-            margin: 0,
-          }}
-          rules={rules}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
 
 const Menu = () => {
   const [form] = Form.useForm();
@@ -204,7 +170,7 @@ const Menu = () => {
       onCell: (record) => {
         return {
           record,
-          dataIndex: col.dataIndex,
+          name: col.dataIndex,
           title: col.title,
           dataType: col.dataType,
           selectoptions: col.selectoptions,
