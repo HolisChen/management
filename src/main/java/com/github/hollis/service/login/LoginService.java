@@ -6,6 +6,7 @@ import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.domain.dto.login.LoginDto;
 import com.github.hollis.security.LoginUser;
+import com.github.hollis.security.TokenGenerator;
 import com.github.hollis.service.permission.UserService;
 import com.github.hollis.utils.WebUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class LoginService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate stringRedisTemplate;
+    private final TokenGenerator tokenGenerator;
 
     /**
      * 执行登录
@@ -48,8 +50,8 @@ public class LoginService {
             throw new IllegalArgumentException("密码错误");
         }
         //生成token
-        String token = UUID.randomUUID().toString().replace("-", "");
-        stringRedisTemplate.opsForValue().set(RedisConstants.LOGIN_TOKEN_PREFIX + token, JSON.toJSONString(new LoginUser(user, ip, token)), SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
+        String token = tokenGenerator.generateToken(user);
+        stringRedisTemplate.opsForValue().set(RedisConstants.LOGIN_TOKEN_PREFIX + "" + token, JSON.toJSONString(new LoginUser(user, ip, token)), SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
         return token;
     }
 

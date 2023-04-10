@@ -4,6 +4,9 @@ import com.github.hollis.dao.entity.RoleUserEntity;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.dao.repository.UserRepository;
 import com.github.hollis.domain.dto.permission.CreateUserDto;
+import com.github.hollis.domain.dto.permission.UpdateUserDto;
+import com.github.hollis.event.EventUtils;
+import com.github.hollis.event.UserForceLogoutEvent;
 import com.github.hollis.mapper.UserMapper;
 import com.github.hollis.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +24,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleUserService roleUserService;
 
     /**
      * 通过loginId查询用户信息
+     *
      * @param loginId
      * @return
      */
@@ -44,6 +47,7 @@ public class UserService {
 
     /**
      * 添加用户
+     *
      * @param reqDto
      */
     @Transactional
@@ -52,22 +56,57 @@ public class UserService {
         if (this.getByLoginId(reqDto.getLoginId()).isPresent()) {
             throw new IllegalArgumentException("Login ID 已存在");
         }
-        Integer userId = UserUtil.getCurrentUserId();
+        Integer operationId = UserUtil.getCurrentUserId();
         String encodedPwd = passwordEncoder.encode(reqDto.getPassword());
-        UserEntity newUser = reqDto.newUser(encodedPwd, userId);
+        UserEntity newUser = reqDto.newUser(encodedPwd, operationId);
         userRepository.save(newUser);
         if (!CollectionUtils.isEmpty(reqDto.getBindingRoles())) {
-            List<RoleUserEntity> roleUserEntityList = reqDto.getBindingRoles()
-                    .stream()
-                    .map(roleId -> {
-                        RoleUserEntity roleUserEntity = new RoleUserEntity();
-                        roleUserEntity.setUserId(newUser.getId());
-                        roleUserEntity.setRoleId(roleId);
-                        roleUserEntity.setCreateBy(userId);
-                        return roleUserEntity;
-                    }).collect(Collectors.toList());
-            roleUserService.saveAll(roleUserEntityList);
+            roleUserService.saveUserRole(newUser.getId(), reqDto.getBindingRoles(), operationId);
         }
     }
 
+
+    /**
+     * 更新用户信息
+     * @param reqDto
+     */
+    public void updateUser(UpdateUserDto reqDto) {
+        UserEntity originUser = userRepository.findById(reqDto.getId()).orElseThrow(() -> new IllegalArgumentException("用户不存在"));
+        userRepository.save(reqDto.convert4Update(originUser, UserUtil.getCurrentUserId()));
+        //更新用户角色关联表
+        roleUserService.saveUserRole(reqDto.getId(), reqDto.getBindingRoles(), UserUtil.getCurrentUserId());
+    }
+
+    @Transactional
+    public void deleteUser(Integer userId) {
+        List<Integer> deleteRoleUserList = roleUserService.findByUserId(userId)
+                .stream()
+                .map(RoleUserEntity::getId)
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(deleteRoleUserList)) {
+            roleUserService.deleteByIds(deleteRoleUserList);
+        }
+        userRepository.logicDelete(userId, UserUtil.getCurrentUserId());
+        EventUtils.publish(new UserForceLogoutEvent(userId));
+    }
+
+    public void disableUser(Integer userId) {
+        userRepository.findById(userId)
+                .ifPresent(user -> {
+                    user.setStatus((byte) 0);
+                    user.setUpdateBy(UserUtil.getCurrentUserId());
+                    userRepository.save(user);
+                    EventUtils.publish(new UserForceLogoutEvent(userId));
+                });
+    }
+
+
+    public void enableUser(Integer userId) {
+        userRepository.findById(userId)
+                .ifPresent(user -> {
+                    user.setStatus((byte) 1);
+                    user.setUpdateBy(UserUtil.getCurrentUserId());
+                    userRepository.save(user);
+                });
+    }
 }

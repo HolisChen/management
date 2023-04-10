@@ -4,6 +4,7 @@ import com.github.hollis.dao.entity.UserEntity;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -22,6 +23,10 @@ public class CreateUserDto {
     private String email;
 
     private List<Integer> bindingRoles;
+
+    public List<Integer> getBindingRoles() {
+        return null == bindingRoles ? Collections.emptyList() : bindingRoles;
+    }
 
     public UserEntity newUser(String encodedPassword, Integer createBy) {
         UserEntity userEntity = new UserEntity();

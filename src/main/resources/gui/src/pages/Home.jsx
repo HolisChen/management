@@ -41,13 +41,12 @@ function buildBreadcrumbItems(menus, location) {
       title: <Link className='crumbItem' to={url}>{crumbMap[url]}</Link>,
     };
   });
-  const breadcrumbItems = [
+  return [
     {
       title: <Link className='crumbItem' to="/">首页</Link>,
       key: 'home',
     },
   ].concat(extraBreadcrumbItems);
-  return breadcrumbItems;
 }
 
 export default function Home() {
@@ -60,13 +59,14 @@ export default function Home() {
       const loginUser = await getCurrentUser();
       setMenus(menu)
       setCurrentUser(loginUser)
+      localStorage.setItem("current_user", JSON.stringify(loginUser))
     }
     fetchData();
   }, [])
-  const naviate = useNavigate()
+  const navigate = useNavigate()
   const menuClick = (e) => {
     const { key } = e
-    naviate(key)
+    navigate(key)
   }
   const location = useLocation()
   const breadcrumbItems = buildBreadcrumbItems(menus, location)
@@ -78,7 +78,7 @@ export default function Home() {
       <Layout>
         <Header className='header'>
           <Breadcrumb className='crumb' items={breadcrumbItems} />
-          <LoginUser user={currentUser}></LoginUser>
+          <LoginUser user={currentUser}/>
         </Header>
         <Content>
           <Outlet />

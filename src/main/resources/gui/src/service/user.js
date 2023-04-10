@@ -9,3 +9,16 @@ export async function getCurrentUser() {
 export async function getUserList() {
     return request.get('/api/user/list')
 }
+
+export async function updateUser(payload) {
+    return request.put("/api/user", payload)
+} 
+
+
+export async function disableUser(userId) {
+    return request.put(`/api/user/${userId}/disable`)
+}
+
+export async function enableUser(userId) {
+    return request.put(`/api/user/${userId}/enable`)
+}
