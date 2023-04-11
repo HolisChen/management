@@ -57,6 +57,7 @@ export default function User() {
                 record,
                 name: 'email',
                 editing: isEditing(record),
+                component: <Input />
             }),
         },
         {
@@ -79,13 +80,13 @@ export default function User() {
                 ) : (
                     <Space>
                         <Typography.Link disabled={editingId !== ''} onClick={() => editRow(record)}>编辑</Typography.Link>
-                        <Typography.Link disabled={editingId !== ''}  onClick={() => switchStatus(record)}>{enabled ? '禁用' : '启用'}</Typography.Link>
+                        <Typography.Link disabled={editingId !== ''} onClick={() => switchStatus(record)}>{enabled ? '禁用' : '启用'}</Typography.Link>
                         {/* <Popconfirm title="您禁用的用户为当前执行操作的用户，会导致你操作成功后退出登录，确定继续吗？"
                             onConfirm={() => switchStatus(record)}
                             onCancel={() => {
                                 setDeleteDoubleConfirm(false)
                             }} */}
-                             {/* onOpenChange={(newOpen) => {
+                        {/* onOpenChange={(newOpen) => {
                             //     console.log(newOpen)
 
                             //     if (!newOpen) {
@@ -101,8 +102,8 @@ export default function User() {
                             //     }
                             // }}
                             // open={deleteDoubleConfirm} */}
-                            {/* okText="确定" cancelText="手滑了"> */}
-                            
+                        {/* okText="确定" cancelText="手滑了"> */}
+
                         {/* </Popconfirm> */}
                         <Popconfirm title="确定删除吗？" okText="确定" cancelText="取消">
                             <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>

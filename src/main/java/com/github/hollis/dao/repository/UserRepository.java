@@ -2,13 +2,14 @@ package com.github.hollis.dao.repository;
 
 import com.github.hollis.dao.BaseRepository;
 import com.github.hollis.dao.entity.UserEntity;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface UserRepository extends BaseRepository<UserEntity, Integer> {
+public interface UserRepository extends BaseRepository<UserEntity, Integer> , JpaSpecificationExecutor<UserEntity> {
 
     UserEntity findByLoginIdAndDeleteAtIsNull(String loginId);
 

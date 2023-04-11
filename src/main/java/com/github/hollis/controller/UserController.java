@@ -1,7 +1,10 @@
 package com.github.hollis.controller;
 
+import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.domain.dto.permission.CreateUserDto;
+import com.github.hollis.domain.dto.permission.QueryUserDto;
 import com.github.hollis.domain.dto.permission.UpdateUserDto;
+import com.github.hollis.domain.vo.base.PageResponse;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.domain.vo.permission.UserVo;
 import com.github.hollis.event.UserForceLogoutEvent;
@@ -12,6 +15,7 @@ import com.github.hollis.utils.UserUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,13 +35,21 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
-    private final ApplicationContext applicationContext;
 
 
     @GetMapping("/list")
 //    @PreAuthorize("hasAuthority('GetUserList')")
     public Result<List<UserVo>> getUsers() {
         return Result.success(userMapper.entityToVoList(userService.findAll()));
+    }
+
+
+    @PostMapping("/page")
+    @ApiOperation(value = "分页获取用户列表")
+    public Result<PageResponse<UserVo>> getPages(@RequestBody QueryUserDto dto) {
+        Page<UserEntity> userEntities = userService.queryUserByPage(dto);
+        List<UserVo> userVos = userMapper.entityToVoList(userEntities.getContent());
+        return Result.success(PageResponse.from(userEntities.getTotalElements(), userVos, dto));
     }
 
 

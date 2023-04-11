@@ -3,14 +3,18 @@ package com.github.hollis.service.permission;
 import com.github.hollis.dao.entity.RoleUserEntity;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.dao.repository.UserRepository;
+import com.github.hollis.domain.dto.base.PageRequest;
 import com.github.hollis.domain.dto.permission.CreateUserDto;
+import com.github.hollis.domain.dto.permission.QueryUserDto;
 import com.github.hollis.domain.dto.permission.UpdateUserDto;
+import com.github.hollis.domain.vo.permission.UserVo;
 import com.github.hollis.event.EventUtils;
 import com.github.hollis.event.UserForceLogoutEvent;
 import com.github.hollis.mapper.UserMapper;
 import com.github.hollis.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,5 +112,9 @@ public class UserService {
                     user.setUpdateBy(UserUtil.getCurrentUserId());
                     userRepository.save(user);
                 });
+    }
+
+    public Page<UserEntity> queryUserByPage(QueryUserDto dto) {
+        return userRepository.findAll(dto.toSpecification(), dto.toPageable());
     }
 }
