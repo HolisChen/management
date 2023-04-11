@@ -10,6 +10,10 @@ export async function getUserList() {
     return request.get('/api/user/list')
 }
 
+export async function getUserPage(payload) {
+    return request.post('/api/user/page', payload)
+}
+
 export async function updateUser(payload) {
     return request.put("/api/user", payload)
 } 

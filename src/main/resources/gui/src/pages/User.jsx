@@ -1,15 +1,32 @@
-import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message } from "antd";
-import { useState } from "react";
-import { disableUser, enableUser, getUserList, updateUser } from "../service/user";
+import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message, Pagination } from "antd";
+import { useEffect, useState } from "react";
+import { disableUser, enableUser, getUserPage, updateUser } from "../service/user";
 import { USER_STATUS, USER_STATUS_OPTIONS } from "../constants/code_mapping";
 import EditableCell from "../components/EditableCell";
 
 export default function User() {
     const [users, setUsers] = useState([])
+    const [total, setTotal] = useState(0)
+    const [pageNo, setPageNo] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
     const [editingId, setEditingId] = useState('')
-    const [deleteDoubleConfirm, setDeleteDoubleConfirm] = useState(false)
     const [tableForm] = Form.useForm()
     const [searchForm] = Form.useForm()
+
+    const getUsers = () => {
+        const payload = searchForm.getFieldValue()
+        getUserPage({
+            pageSize,
+            pageNo,
+            ...payload
+        }).then(res => {
+                setUsers(res.contents)
+                setTotal(res.total)
+            })
+    }
+    useEffect(()=>{
+        getUsers();
+    },[pageNo,pageSize])
 
     const editRow = (record) => {
         setEditingId(record.id);
@@ -81,30 +98,6 @@ export default function User() {
                     <Space>
                         <Typography.Link disabled={editingId !== ''} onClick={() => editRow(record)}>编辑</Typography.Link>
                         <Typography.Link disabled={editingId !== ''} onClick={() => switchStatus(record)}>{enabled ? '禁用' : '启用'}</Typography.Link>
-                        {/* <Popconfirm title="您禁用的用户为当前执行操作的用户，会导致你操作成功后退出登录，确定继续吗？"
-                            onConfirm={() => switchStatus(record)}
-                            onCancel={() => {
-                                setDeleteDoubleConfirm(false)
-                            }} */}
-                        {/* onOpenChange={(newOpen) => {
-                            //     console.log(newOpen)
-
-                            //     if (!newOpen) {
-                            //         setDeleteDoubleConfirm(newOpen);
-                            //         return;
-                            //     }
-                            //     const currentUser = JSON.parse(localStorage.getItem('current_user')) || {}
-                            //     console.log('@' ,enabled && record.id === currentUser.userId)
-                            //     if (enabled && record.id === currentUser.id) {
-                            //         setDeleteDoubleConfirm(true) 
-                            //     }else {
-                            //         switchStatus(record)
-                            //     }
-                            // }}
-                            // open={deleteDoubleConfirm} */}
-                        {/* okText="确定" cancelText="手滑了"> */}
-
-                        {/* </Popconfirm> */}
                         <Popconfirm title="确定删除吗？" okText="确定" cancelText="取消">
                             <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>
                         </Popconfirm>
@@ -114,10 +107,7 @@ export default function User() {
         }
     ]
 
-    const getUsers = () => {
-        getUserList()
-            .then(res => setUsers(res))
-    }
+    
 
     const isEditing = (record) => editingId === record.id
 
@@ -137,7 +127,6 @@ export default function User() {
 
     const switchStatus = (record) => {
         const { id } = record
-        setDeleteDoubleConfirm(false)
         if (record.status === 0) {
             //启用
             enableUser(id)
@@ -175,8 +164,8 @@ export default function User() {
                         </Form.Item>
                     </Col>
                     <Col span={3}>
-                        <Form.Item label={'状态'} name={'status'}>
-                            <Select options={USER_STATUS_OPTIONS} defaultValue={'启用'} />
+                        <Form.Item label={'状态'} name={'status'} initialValue={1}>
+                            <Select options={USER_STATUS_OPTIONS} allowClear/>
                         </Form.Item>
                     </Col>
                     <Col span={2}>
@@ -196,7 +185,20 @@ export default function User() {
                             cell: EditableCell
                         }
                     }}
-                />
+                    pagination={false}
+                >
+                </Table>
+                <Pagination total={total} 
+                onChange={(pageNo, pageSize) => {
+                    setPageNo(pageNo)
+                    setPageSize(pageSize)
+                }}
+                onShowSizeChange={(current, size)=> {
+                    console.log('@', current, size)
+                    setPageSize(size)
+                }}
+                defaultCurrent={1} 
+                defaultPageSize={10}/>
             </Form>
         </>
     )
