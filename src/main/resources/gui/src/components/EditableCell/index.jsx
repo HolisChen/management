@@ -1,20 +1,16 @@
 import React from 'react'
-import {InputNumber, Select, Input, Form} from 'antd'
+import {Form} from 'antd'
 
 export default function EditableCell(props) {
     const {
         editing,
         name,
-        dataType,
         record,
         children,
-        selectoptions,
         rules,
+        component,
         ...restProps
     } = props
-    const inputNode = dataType === 'number' ?
-    <InputNumber /> : dataType === 'select' ?
-      <Select options={selectoptions} /> : <Input />;
     return (
         <td {...restProps}>
       {editing ? (
@@ -25,7 +21,7 @@ export default function EditableCell(props) {
           }}
           rules={rules}
         >
-          {inputNode}
+          {component}
         </Form.Item>
       ) : (
         children

@@ -3,6 +3,8 @@ package com.github.hollis.domain.vo.permission;
 import com.github.hollis.domain.vo.base.BaseVo;
 import lombok.Data;
 
+import java.util.List;
+
 
 @Data
 public class UserVo extends BaseVo {
@@ -15,4 +17,6 @@ public class UserVo extends BaseVo {
     private String email;
 
     private String phoneNumber;
+
+    private List<RoleVo> roles;
 }

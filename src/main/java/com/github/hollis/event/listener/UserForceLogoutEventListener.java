@@ -5,8 +5,11 @@ import com.github.hollis.event.UserForceLogoutEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -31,7 +34,7 @@ public class UserForceLogoutEventListener implements ApplicationListener<UserFor
         }
         ScanOptions scanOptions = ScanOptions.scanOptions()
                 .match(RedisConstants.LOGIN_TOKEN_PREFIX + userId + ":*")
-                .type(DataType.STRING)
+//                .type(DataType.STRING)
                 .build();
         Cursor<String> cursor = stringRedisTemplate.scan(scanOptions);
         List<String> deleteKeys = new ArrayList<>();

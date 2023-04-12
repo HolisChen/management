@@ -1,15 +1,19 @@
 package com.github.hollis.controller;
 
+import com.github.hollis.dao.entity.RoleEntity;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.domain.dto.permission.CreateUserDto;
 import com.github.hollis.domain.dto.permission.QueryUserDto;
 import com.github.hollis.domain.dto.permission.UpdateUserDto;
+import com.github.hollis.domain.vo.base.BaseVo;
 import com.github.hollis.domain.vo.base.PageResponse;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.domain.vo.permission.UserVo;
 import com.github.hollis.event.UserForceLogoutEvent;
+import com.github.hollis.mapper.RoleMapper;
 import com.github.hollis.mapper.UserMapper;
 import com.github.hollis.security.LoginUser;
+import com.github.hollis.service.permission.RoleService;
 import com.github.hollis.service.permission.UserService;
 import com.github.hollis.utils.UserUtil;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user")
@@ -35,7 +41,8 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
-
+    private final RoleService roleService;
+    private final RoleMapper roleMapper;
 
     @GetMapping("/list")
 //    @PreAuthorize("hasAuthority('GetUserList')")
@@ -49,6 +56,9 @@ public class UserController {
     public Result<PageResponse<UserVo>> getPages(@RequestBody QueryUserDto dto) {
         Page<UserEntity> userEntities = userService.queryUserByPage(dto);
         List<UserVo> userVos = userMapper.entityToVoList(userEntities.getContent());
+        List<Integer> userIds = userVos.stream().map(BaseVo::getId).collect(Collectors.toList());
+        Map<Integer, List<RoleEntity>> userRoleMap = roleService.findRolesByUserIds(userIds);
+        userVos.forEach(item -> item.setRoles(roleMapper.entityToVos(userRoleMap.get(item.getId()))));
         return Result.success(PageResponse.from(userEntities.getTotalElements(), userVos, dto));
     }
 

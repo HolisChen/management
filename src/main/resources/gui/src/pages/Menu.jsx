@@ -9,7 +9,8 @@ import {
   Space,
   Tooltip,
   Modal,
-  TreeSelect
+  TreeSelect,
+  InputNumber
 } from 'antd';
 import { useState, useEffect } from 'react';
 import {getResourceTree, updateResource, addResource, removeResource} from '../service/resource';
@@ -79,52 +80,75 @@ const Menu = () => {
     {
       title: '资源编码',
       dataIndex: 'resourceCode',
-      key: 'resourceCode',
       editable: true,
-      dataType: 'text',
-      rules: [
-        {
-          required: true,
-          message: '资源编码必填',
-        },
-      ]
+      onCell: (record) => ({
+        record,
+        name: 'resourceCode',
+        editing: isEditing(record),
+        component: <Input />,
+        rules: [
+          {
+            required: true,
+            message: '资源编码必填',
+          },
+        ]
+    })
     },
     {
       title: '资源名称',
       dataIndex: 'resourceName',
-      key: 'resourceName',
       editable: true,
-      dataType: 'text',
+      onCell: (record) => ({
+        record,
+        name: 'resourceName',
+        editing: isEditing(record),
+        component: <Input />,
+      })  
     },
     {
       title: '资源类型',
       dataIndex: 'resourceType',
-      key: 'resourceType',
       editable: true,
       render: type => RESOURCE_TYPES[type],
-      dataType: 'select',
-      selectoptions: RESOURCE_OPTIONS
+      onCell: (record) => ({
+        record,
+        name: 'resourceType',
+        editing: isEditing(record),
+        component: <Select options={RESOURCE_OPTIONS} />,
+      })
     },
     {
       title: '菜单路由',
       dataIndex: 'resourceUrl',
-      key: 'resourceUrl',
       editable: true,
-      dataType: 'text',
+      onCell: (record) => ({
+        record,
+        name: 'resourceUrl',
+        editing: isEditing(record),
+        component: <Input />,
+      })
     },
     {
       title: '菜单图标',
       dataIndex: 'icon',
-      key: 'icon',
       editable: true,
-      dataType: 'text',
+      onCell: (record) => ({
+        record,
+        name: 'icon',
+        editing: isEditing(record),
+        component: <Input />,
+      })
     },
     {
       title: '菜单排序',
       dataIndex: 'sort',
-      key: 'sort',
       editable: true,
-      dataType: 'number',
+      onCell: (record) => ({
+        record,
+        name: 'sort',
+        editing: isEditing(record),
+        component: <InputNumber />,
+      })
     },
     {
       title: '创建时间',
@@ -160,26 +184,6 @@ const Menu = () => {
       }
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => {
-        return {
-          record,
-          name: col.dataIndex,
-          title: col.title,
-          dataType: col.dataType,
-          selectoptions: col.selectoptions,
-          rules: col.rules,
-          editing: isEditing(record),
-        }
-      },
-    };
-  });
 
   useEffect(() => {
     query()
@@ -275,7 +279,7 @@ const Menu = () => {
       </Space>
       <Form form={form} component={false}>
         <Table
-          columns={mergedColumns}
+          columns={columns}
           bordered
           components={{
             body: {

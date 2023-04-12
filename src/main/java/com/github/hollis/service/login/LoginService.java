@@ -44,7 +44,7 @@ public class LoginService {
         }
         UserEntity user = loginUser.get();
         if (!Objects.equals(user.getStatus(), (byte) 1)) {
-            throw new IllegalArgumentException("用户账户被禁用禁止登录");
+            throw new IllegalArgumentException("用户账户被禁用，禁止登录");
         }
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("密码错误");

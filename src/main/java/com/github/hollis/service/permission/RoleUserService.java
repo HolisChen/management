@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,5 +58,14 @@ public class RoleUserService extends CRUDService<RoleUserEntity, Integer, RoleUs
         if (!CollectionUtils.isEmpty(insertList)) {
             roleUserRepository.saveAll(insertList);
         }
+    }
+
+    Map<Integer,List<Integer>> findRoleIdByUserId(List<Integer> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return Collections.emptyMap();
+        }
+        return roleUserRepository.findByUserIdIn(userIds)
+                .stream()
+                .collect(Collectors.groupingBy(RoleUserEntity::getUserId,Collectors.mapping(RoleUserEntity::getRoleId, Collectors.toList())));
     }
 }

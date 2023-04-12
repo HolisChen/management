@@ -1,8 +1,9 @@
-import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message, Pagination } from "antd";
+import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message, Pagination,Tag } from "antd";
 import { useEffect, useState } from "react";
 import { disableUser, enableUser, getUserPage, updateUser } from "../service/user";
 import { USER_STATUS, USER_STATUS_OPTIONS } from "../constants/code_mapping";
 import EditableCell from "../components/EditableCell";
+import { getAllRoles } from "../service/role";
 
 export default function User() {
     const [users, setUsers] = useState([])
@@ -10,6 +11,7 @@ export default function User() {
     const [pageNo, setPageNo] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [editingId, setEditingId] = useState('')
+    const [roleOptions, setRoleOptions] = useState([])
     const [tableForm] = Form.useForm()
     const [searchForm] = Form.useForm()
 
@@ -28,10 +30,21 @@ export default function User() {
         getUsers();
     },[pageNo,pageSize])
 
+    useEffect(() => {
+        getAllRoles().then(res =>  {
+            const options = res.map(role => ({
+                value : role.id,
+                label : role.roleName
+            }))
+            setRoleOptions(options);
+        })
+    },[])
+
     const editRow = (record) => {
         setEditingId(record.id);
         tableForm.setFieldsValue({
-            ...record,
+            ...record, 
+            bindingRoles: record.roles.map(item => item.id)
         });
     }
     const columns = [
@@ -47,6 +60,7 @@ export default function User() {
                 record,
                 name: 'username',
                 editing: isEditing(record),
+                component: <Input />
             }),
         },
         {
@@ -64,6 +78,7 @@ export default function User() {
                 record,
                 name: 'phoneNumber',
                 editing: isEditing(record),
+                component: <Input />
             }),
         },
         {
@@ -75,6 +90,26 @@ export default function User() {
                 name: 'email',
                 editing: isEditing(record),
                 component: <Input />
+            }),
+        },
+        {
+            title: "分配角色",
+            dataIndex: 'roles',
+            editable: true,
+            render: (text, record, index) => {
+                const {roles} = record;
+                const tags = roles.map(item => (<Tag key={item.id} color="blue">
+                    {item.roleName}
+                </Tag>))
+                return (
+                    tags
+                )
+            },
+            onCell: (record) => ({
+                record,
+                name: 'bindingRoles',
+                editing: isEditing(record),
+                component: <Select mode="tags" options={roleOptions}/>
             }),
         },
         {
@@ -164,11 +199,11 @@ export default function User() {
                         </Form.Item>
                     </Col>
                     <Col span={3}>
-                        <Form.Item label={'状态'} name={'status'} initialValue={1}>
+                        <Form.Item label={'状态'} name={'status'}>
                             <Select options={USER_STATUS_OPTIONS} allowClear/>
                         </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col span={2}   >
                         <Button type={"primary"} onClick={() => {
                             getUsers()
                         }}>查询</Button>

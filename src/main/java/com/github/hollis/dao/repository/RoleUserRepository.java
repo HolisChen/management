@@ -11,4 +11,5 @@ public interface RoleUserRepository extends JpaRepository<RoleUserEntity, Intege
     List<RoleUserEntity> findByUserId(Integer userId);
     int deleteByRoleId(Integer roleId);
     List<RoleUserEntity> findByRoleId(Integer roleId);
+    List<RoleUserEntity> findByUserIdIn(List<Integer> userIds);
 }
