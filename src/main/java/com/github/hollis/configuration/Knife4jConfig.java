@@ -39,7 +39,7 @@ public class Knife4jConfig {
         try {
             LoginDto loginDto = new LoginDto();
             loginDto.setLoginId("admin");
-            loginDto.setPassword("123");
+            loginDto.setPassword("1");
             token = loginService.doLogin(loginDto);
         }catch (Exception e) {
         }

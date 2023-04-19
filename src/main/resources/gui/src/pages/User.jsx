@@ -271,7 +271,7 @@ export default function User() {
                 setOpenAdd(false)
                 addForm.resetFields()
             }} onOk={handleAdd} title={'新增用户'}>
-                <Form form={addForm} component={false} labelCol={{span:4}} wrapperCol={{span:16}} autoComplete={false}>
+                <Form form={addForm} component={false} labelCol={{span:4}} wrapperCol={{span:20}} autoComplete={false}>
                     <FormItem label={'登录ID'} name={'loginId'} rules={[
                         {
                             required:true,
