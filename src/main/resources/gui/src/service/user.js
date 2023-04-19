@@ -26,3 +26,11 @@ export async function disableUser(userId) {
 export async function enableUser(userId) {
     return request.put(`/api/user/${userId}/enable`)
 }
+
+export async function addUser(payload) {
+    return request.post('/api/user', payload)
+}
+
+export async function deleteUser(userId) {
+    return request.delete(`/api/user/${userId}/delete`)
+}

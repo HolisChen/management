@@ -1,9 +1,10 @@
-import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message, Pagination,Tag } from "antd";
+import { Form, Input, Button, Row, Col, Space, Typography, Popconfirm, Table, Select, message, Pagination, Tag, Modal } from "antd";
 import { useEffect, useState } from "react";
-import { disableUser, enableUser, getUserPage, updateUser } from "../service/user";
+import { addUser, deleteUser, disableUser, enableUser, getUserPage, updateUser } from "../service/user";
 import { USER_STATUS, USER_STATUS_OPTIONS } from "../constants/code_mapping";
 import EditableCell from "../components/EditableCell";
 import { getAllRoles } from "../service/role";
+import FormItem from "antd/es/form/FormItem";
 
 export default function User() {
     const [users, setUsers] = useState([])
@@ -11,9 +12,11 @@ export default function User() {
     const [pageNo, setPageNo] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [editingId, setEditingId] = useState('')
+    const [openAdd, setOpenAdd] = useState(false)
     const [roleOptions, setRoleOptions] = useState([])
     const [tableForm] = Form.useForm()
     const [searchForm] = Form.useForm()
+    const [addForm] = Form.useForm()
 
     const getUsers = () => {
         const payload = searchForm.getFieldValue()
@@ -22,28 +25,28 @@ export default function User() {
             pageNo,
             ...payload
         }).then(res => {
-                setUsers(res.contents)
-                setTotal(res.total)
-            })
+            setUsers(res.contents)
+            setTotal(res.total)
+        })
     }
-    useEffect(()=>{
+    useEffect(() => {
         getUsers();
-    },[pageNo,pageSize])
+    }, [pageNo, pageSize])
 
     useEffect(() => {
-        getAllRoles().then(res =>  {
+        getAllRoles().then(res => {
             const options = res.map(role => ({
-                value : role.id,
-                label : role.roleName
+                value: role.id,
+                label: role.roleName
             }))
             setRoleOptions(options);
         })
-    },[])
+    }, [])
 
     const editRow = (record) => {
         setEditingId(record.id);
         tableForm.setFieldsValue({
-            ...record, 
+            ...record,
             bindingRoles: record.roles.map(item => item.id)
         });
     }
@@ -97,7 +100,7 @@ export default function User() {
             dataIndex: 'roles',
             editable: true,
             render: (text, record, index) => {
-                const {roles} = record;
+                const { roles } = record;
                 const tags = roles.map(item => (<Tag key={item.id} color="blue">
                     {item.roleName}
                 </Tag>))
@@ -109,7 +112,7 @@ export default function User() {
                 record,
                 name: 'bindingRoles',
                 editing: isEditing(record),
-                component: <Select mode="tags" options={roleOptions}/>
+                component: <Select mode="tags" options={roleOptions} />
             }),
         },
         {
@@ -133,7 +136,7 @@ export default function User() {
                     <Space>
                         <Typography.Link disabled={editingId !== ''} onClick={() => editRow(record)}>编辑</Typography.Link>
                         <Typography.Link disabled={editingId !== ''} onClick={() => switchStatus(record)}>{enabled ? '禁用' : '启用'}</Typography.Link>
-                        <Popconfirm title="确定删除吗？" okText="确定" cancelText="取消">
+                        <Popconfirm title="确定删除吗？" okText="确定" cancelText="取消" onConfirm={() => handleDelete(record.id)}>
                             <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>
                         </Popconfirm>
                     </Space>
@@ -142,7 +145,7 @@ export default function User() {
         }
     ]
 
-    
+
 
     const isEditing = (record) => editingId === record.id
 
@@ -189,6 +192,28 @@ export default function User() {
         }
     }
 
+    const handleDelete = (userId) => {
+        deleteUser(userId).then(res => {
+           return getUsers()
+        }).catch(err => {
+            
+        })
+    }
+    const handleAdd = () => {
+        addForm.validateFields()
+            .then((value) => {
+                return addUser(value)
+            })
+            .then(res => {
+                setOpenAdd(false)
+                addForm.resetFields()
+                return getUsers()
+            })
+            .catch(err => {
+
+            })
+    }
+
     return (
         <>
             <Form form={searchForm} component={false} >
@@ -200,13 +225,19 @@ export default function User() {
                     </Col>
                     <Col span={3}>
                         <Form.Item label={'状态'} name={'status'}>
-                            <Select options={USER_STATUS_OPTIONS} allowClear/>
+                            <Select options={USER_STATUS_OPTIONS} allowClear />
                         </Form.Item>
                     </Col>
                     <Col span={2}   >
-                        <Button type={"primary"} onClick={() => {
-                            getUsers()
-                        }}>查询</Button>
+                        <Space>
+                            <Button type={"primary"} onClick={() => {
+                                getUsers()
+                            }}>查询</Button>
+
+                            <Button onClick={() => {
+                                setOpenAdd(true)
+                            }}>新增</Button>
+                        </Space>
                     </Col>
                 </Row>
             </Form>
@@ -223,18 +254,60 @@ export default function User() {
                     pagination={false}
                 >
                 </Table>
-                <Pagination total={total} 
-                onChange={(pageNo, pageSize) => {
-                    setPageNo(pageNo)
-                    setPageSize(pageSize)
-                }}
-                onShowSizeChange={(current, size)=> {
-                    console.log('@', current, size)
-                    setPageSize(size)
-                }}
-                defaultCurrent={1} 
-                defaultPageSize={10}/>
+                <Pagination total={total}
+                    onChange={(pageNo, pageSize) => {
+                        setPageNo(pageNo)
+                        setPageSize(pageSize)
+                    }}
+                    onShowSizeChange={(current, size) => {
+                        console.log('@', current, size)
+                        setPageSize(size)
+                    }}
+                    defaultCurrent={1}
+                    defaultPageSize={10} />
             </Form>
+
+            <Modal open={openAdd} onCancel={() => {
+                setOpenAdd(false)
+                addForm.resetFields()
+            }} onOk={handleAdd} title={'新增用户'}>
+                <Form form={addForm} component={false} labelCol={{span:4}} wrapperCol={{span:16}} autoComplete={false}>
+                    <FormItem label={'登录ID'} name={'loginId'} rules={[
+                        {
+                            required:true,
+                            message:'登录ID必填'
+                        }
+                    ]}>
+                        <Input/>
+                    </FormItem>
+                    <FormItem label={'用户名'} name={'username'} rules={[
+                        {
+                            required:true,
+                            message:'用户名必填'
+                        }
+                    ]}>
+                        <Input />
+                    </FormItem>
+                    <FormItem label={'手机号'} name={'phoneNumber'}>
+                        <Input />
+                    </FormItem>
+                    <FormItem label={'邮箱'} name={'email'}>
+                        <Input/>
+                    </FormItem>
+                    <FormItem label={'密码'} name={'password'} rules={[
+                        {
+                            required:true,
+                            message:'密码必填'
+                        }
+                    ]}>
+                        <Input type="password"/>
+                    </FormItem>
+                    <FormItem label={'分配角色'} name={'bindingRoles'}>
+                        <Select options={roleOptions} mode="tags"/>
+                    </FormItem>
+                </Form>
+            </Modal>
+
         </>
     )
 }

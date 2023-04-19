@@ -18,6 +18,7 @@ public class QueryUserDto extends PageRequest {
     public Specification<UserEntity> toSpecification() {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.isNull(root.get("deleteAt")));
             if (StringUtils.hasText(this.loginId)) {
                 predicates.add(criteriaBuilder.equal(root.get("loginId"), this.loginId));
             }
