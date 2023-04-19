@@ -1,18 +1,18 @@
 import React from 'react'
-import { Form } from 'antd'
+import {Form} from 'antd'
 
 export default function EditableCell(props) {
-  const {
-    editing,
-    name,
-    record,
-    children,
-    rules,
-    component,
-    ...restProps
-  } = props
-  return (
-    <td {...restProps}>
+    const {
+        editing,
+        name,
+        record,
+        children,
+        rules,
+        component,
+        ...restProps
+    } = props
+    return (
+        <td {...restProps}>
       {editing ? (
         <Form.Item
           name={name}
@@ -27,5 +27,5 @@ export default function EditableCell(props) {
         children
       )}
     </td>
-  )
+    )
 }

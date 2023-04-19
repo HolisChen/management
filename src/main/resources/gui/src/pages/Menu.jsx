@@ -236,9 +236,9 @@ const Menu = () => {
         <Popconfirm title={'删除资源'} description={'确定要删除所选资源吗？'} okText={'是的'} cancelText={'点错了'} onConfirm={() => {handleDelete()}} disabled={!deleteKeys.length}>
           <Button disabled={!deleteKeys.length} type={'primary'} danger>删除所选</Button>
         </Popconfirm>
-        <Modal open={openAdd} onCancel={() => cancelAdd()} onOk={() => handleAdd()} title={'新增资源'} >
-          <Form form={addForm} component={false} labelCol={{span:4}} wrapperCol={{span:20}} autoComplete={false}>
-            <Form.Item label='父级资源' name='parentId' >
+        <Modal open={openAdd} onCancel={() => cancelAdd()} onOk={() => handleAdd()}>
+          <Form form={addForm} component={false} labelCol={10} wrapperCol={4} autoComplete={false}>
+            <Form.Item label='父级资源' name='parentId' style={{ marginTop: '30px' }}>
               <TreeSelect treeData={resourceTreeSelectData} />
             </Form.Item>
             <Form.Item label='资源编码' name='resourceCode' rules={[
