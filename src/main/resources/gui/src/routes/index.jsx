@@ -5,6 +5,7 @@ import Role from '../pages/Role';
 import Menu from '../pages/Menu';
 import Dashboard from '../pages/Dashboard';
 import Login from '../pages/Login';
+import LogQuery from '../pages/LogQuery';
 
 const routes = [
     {
@@ -39,6 +40,10 @@ const routes = [
                         element: <Menu/>,
                     }
                 ]
+            },
+            {
+                path:"logQuery",
+                element: <LogQuery/>
             }
         ]
     }
