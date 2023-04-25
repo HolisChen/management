@@ -6,27 +6,32 @@ import EditableCell from '../EditableCell'
 /**
  * 
  * @param {*} props
- * {
- *  "columns": 
- * 
- * }
- * 
- * 
- *  
+
  * @returns 
  */
 export default function CRUD(props) {
   const { config } = props
-  const { columns, query, rowKey = 'id', create, update, deleteRow } = config
+  const { columns, query, rowKey = 'id', create, update, deleteRow, rowOperations = [] } = config
   const { conditions = [], doQuery } = query
   const { modalTitle = '', createFormItems = [], doCreate } = create
-  const { doUpdate } = update
+  const { mode: updateMode = 'row', doUpdate } = update
+  const { mode: rowDeleteMode = 'row', doDelete } = deleteRow
   const [queryForm] = Form.useForm()
   const [editForm] = Form.useForm()
   const [addForm] = Form.useForm()
   const [dataSource, setDataSource] = useState([])
   const [openAdd, setOpenAdd] = useState(false)
   const [editingId, setEditingId] = useState('')
+  const [selectRowKeys, setSelectRowKeys] = useState([])
+  const batchDelete = rowDeleteMode === 'batch'
+  const rowDelete = rowDeleteMode === 'row'
+
+  const rowSelection = batchDelete ? {
+    type: 'checkbox',
+    onChange: (selectRowKeys) => {
+      setSelectRowKeys(selectRowKeys)
+    }
+  } : false
 
 
   const queryFormItems = conditions.map((item, index) => (
@@ -46,40 +51,60 @@ export default function CRUD(props) {
     )
   })
 
+  const isRowUpdateMode = updateMode === 'row'
+  const showOperationColumn = isRowUpdateMode || rowDelete || rowOperations.length
 
-  const editAbleColumns = [...columns.map(col => {
-    if (col.editable) {
+
+  const editAbleColumns = columns.map(col => {
+    if (col.editable && isRowUpdateMode) {
       col.onCell = (record) => ({
         record,
         editing: isEditing(record),
         name: col.dataIndex,
-        component: col.component
+        component: col.component,
+        rules: col.rules
       })
     }
     return col
-  }), {
-    title: '操作',
-    dataIndex: 'operations',
-    render: (text, record, index) => {
-      const editable = isEditing(record)
-      return editable ? (
-        <Space>
-          <Typography.Link onClick={() => onSaveEdit(record)}>保存</Typography.Link>
-          <Popconfirm title="确定取消吗？" onConfirm={cancelEdit} okText="确定" cancelText="取消">
-            <Typography.Link>取消</Typography.Link>
-          </Popconfirm>
-        </Space>
-      ) : (
-        <Space>
-          <Typography.Link disabled={editingId !== ''} onClick={() => onEdit(record)}>编辑</Typography.Link>
-          <Popconfirm title="确定删除吗？" okText="确定" cancelText="取消" onConfirm={() => { }}>
-            <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>
-          </Popconfirm>
-        </Space>
-      )
-    }
-  }]
+  })
 
+  
+
+  if (showOperationColumn) {
+    editAbleColumns.push({
+      title: '操作',
+      dataIndex: 'operations',
+      render: (text, record, index) => {
+        const editable = isEditing(record)
+        const addtionalRowOperations = rowOperations.map((item, index) => {
+          const {title, onClick} = item 
+          return (<Typography.Link key={index} onClick={() => onClick(record)}>{title}</Typography.Link>
+          )
+        })
+
+        const rowDeleteBtn = rowDelete ?
+          (<Popconfirm title="确定删除吗？" okText="确定" cancelText="取消" onConfirm={() => { onDelete(record) }}>
+            <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>
+          </Popconfirm>) : <></>
+        const rowUpdateBtn = isRowUpdateMode ?
+          (<Typography.Link disabled={editingId !== ''} onClick={() => onEdit(record)}>编辑</Typography.Link>) : <></>
+        return editable ? (
+          <Space>
+            <Typography.Link onClick={() => onSaveEdit(record)}>保存</Typography.Link>
+            <Popconfirm title="确定取消吗？" onConfirm={cancelEdit} okText="确定" cancelText="取消">
+              <Typography.Link>取消</Typography.Link>
+            </Popconfirm>
+          </Space>
+        ) : (
+          <Space>
+            {rowUpdateBtn}
+            {rowDeleteBtn}
+            {addtionalRowOperations}
+          </Space>
+        )
+      }
+    })
+  }
 
   const onQueryClick = (e) => {
     queryData()
@@ -87,7 +112,9 @@ export default function CRUD(props) {
 
   const queryData = () => {
     if (typeof doQuery === 'function') {
-      queryForm.validateFields().then(data => doQuery(data).then(dataList => setDataSource(dataList))).catch(e => { })
+      queryForm.validateFields().then(data => doQuery(data).then(dataList => {
+        setDataSource(dataList);
+      })).catch(e => { })
     }
   }
 
@@ -109,13 +136,32 @@ export default function CRUD(props) {
     }
   }
 
+  const onDelete = (row) => {
+    const rowId = row[rowKey]
+    if (typeof doDelete === 'function') {
+      doDelete(rowId)
+        .then(res => queryData())
+        .catch(err => { })
+    }
+  }
+
+  const onBatchDelete = () => {
+    if (selectRowKeys && selectRowKeys.length) {
+      if (typeof doDelete === 'function') {
+        doDelete(selectRowKeys)
+          .then(res => queryData())
+          .catch(err => { })
+      }
+    }
+  }
+
   const onCreateModalCacel = () => {
     setOpenAdd(false)
   }
 
   const cancelEdit = () => setEditingId('')
 
-  const isEditing = (record) => record[rowKey] == editingId
+  const isEditing = (record) => record[rowKey] === editingId
 
   const onEdit = (record) => {
     setEditingId(record[rowKey])
@@ -125,7 +171,7 @@ export default function CRUD(props) {
   const onSaveEdit = (record) => {
     if (typeof doUpdate === 'function') {
       editForm.validateFields()
-        .then(data =>  doUpdate(record, data))
+        .then(data => doUpdate(record, data))
         .then(_ => queryData())
         .then(_ => cancelEdit())
         .catch(e => { })
@@ -133,14 +179,22 @@ export default function CRUD(props) {
   }
 
   const createBtn = create ? <Button onClick={onCreateClick}>新增</Button> : <></>
+
+  const deleteCount = selectRowKeys.length;
+  const batchDeleteBtn = batchDelete ? (
+    <Popconfirm title={'删除数据'} description={`确定要删除这${deleteCount}条记录吗？`} okText={'是的'} cancelText={'点错了'} onConfirm={() => { onBatchDelete() }} disabled={!deleteCount}>
+      <Button danger type='primary' disabled={!selectRowKeys.length}>删除</Button>
+    </Popconfirm>
+  ) : <></>
   return (
     <>
       <Form form={queryForm}>
         <Row>
           {queryFormItems}
           <Button type='primary' onClick={onQueryClick} >查询</Button>
-          <Button>重置</Button>
+          <Button onClick={()=> {queryForm.resetFields()}}>重置</Button>
           {createBtn}
+          {batchDeleteBtn}
         </Row>
       </Form>
       <Form form={editForm}>
@@ -148,6 +202,7 @@ export default function CRUD(props) {
           columns={editAbleColumns}
           bordered
           rowKey={rowKey}
+          rowSelection={rowSelection}
           components={{
             body: {
               cell: EditableCell

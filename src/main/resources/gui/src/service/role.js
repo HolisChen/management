@@ -6,3 +6,11 @@ export async function getAllRoles() {
 export async function updateRole(payload) {
     return request.put('/api/role',payload)
 }
+
+export async function addRole(payload) {
+    return request.post('/api/role',payload)
+}
+
+export async function deleteRole(roleId) {
+    return request.delete(`/api/role/${roleId}`)
+}

@@ -1,8 +1,8 @@
 
 import React from 'react'
 import CRUD from '../components/CRUD'
-import { Button, Input } from 'antd'
-import { getAllRoles, updateRole } from '../service/role'
+import { Input } from 'antd'
+import { addRole, deleteRole, getAllRoles, updateRole } from '../service/role'
 export default function LogQuery() {
     const params = {
         rowKey: 'id',
@@ -31,48 +31,71 @@ export default function LogQuery() {
             },
         ],
         create: {
-            modalTitle: '新建',
+            modalTitle: '新增角色',
             createFormItems: [
                 {
-                    name: 'title',
-                    label: '姓名',
+                    name: 'roleCode',
+                    label: '角色编码',
                     rules: [
                         {
                             'required': true,
-                            'message': '姓名必填'
+                            'message': '角色编码必填'
                         }
                     ],
                     component: <Input />
-
+                },
+                {
+                    name: 'roleName',
+                    label: '角色名称',
+                    rules: [
+                        {
+                            'required': true,
+                            'message': '角色名称必填'
+                        }
+                    ],
+                    component: <Input />
+                },
+                {
+                    name: 'roleDescription',
+                    label: '角色描述',
+                    rules: [
+                    ],
+                    component: <Input />
                 }
             ],
             doCreate: (data) => {
-                console.log(data)
+                return addRole(data)
             }
         },
         update: {
             doUpdate: (row, data) => {
-               return updateRole({...data,id: row.id})
-            }
+                return updateRole({ ...data, id: row.id })
+            },
         },
         query: {
             conditions: [
                 {
-                    label: '姓名2',
+                    label: '角色编码',
                     component: <Input />,
-                    name: 'name2',
+                    name: 'roleCode',
                     span: 6
                 },
                 {
-                    label: '姓名3',
+                    label: '角色名称',
                     component: <Input />,
-                    name: 'name3',
+                    name: 'roleName',
                     span: 6
                 }
             ],
             doQuery: (condition) => {
                 return getAllRoles()
             },
+        },
+        deleteRow: {
+            mode: 'row',
+            doDelete: (rowKey) => {
+                return deleteRole(rowKey)
+            }
         }
 
     }
