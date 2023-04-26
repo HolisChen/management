@@ -10,7 +10,8 @@ import EditableCell from '../EditableCell'
  * @returns 
  */
 export default function CRUD(props) {
-  const { columns, queryConfig, rowKey = 'id', createConfig, updateConfig, deleteConfig, rowOperations = [], paginationConfig= false } = props
+  console.log(props)
+  const { columns, queryConfig = {}, rowKey = 'id', createConfig = false, updateConfig = false, deleteConfig = false, rowOperations = [], paginationConfig= false } = props
   const { conditions = [], doQuery } = queryConfig
   const { modalTitle = '', createFormItems = [], doCreate } = createConfig
   const { mode: updateMode = 'row', doUpdate } = updateConfig
@@ -33,8 +34,6 @@ export default function CRUD(props) {
       setSelectRowKeys(selectRowKeys)
     }
   } : false
-
-  const pagination = paginationConfig ? {} : false
 
   const queryFormItems = conditions.map((item, index) => (
     <Col span={item.span || 6} key={index}>
@@ -114,14 +113,14 @@ export default function CRUD(props) {
 
   const queryData = () => {
     if (typeof doQuery === 'function') {
-      queryForm.validateFields().then(data => doQuery(data).then(res => {
+      queryForm.validateFields().then(data => doQuery(data)).then(res => {
         if(paginationConfig) {
           setDataSource(res[contentName])
         } else {
           setDataSource(res)
         }
         
-      })).catch(e => { })
+      }).catch(e => { console.log(e)})
     }
   }
 
@@ -217,7 +216,7 @@ export default function CRUD(props) {
               cell: EditableCell
             }
           }}
-          pagination={pagination}
+          pagination={false}
         ></Table>
         {paginationContent}
       </Form>
