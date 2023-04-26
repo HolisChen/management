@@ -1,95 +1,90 @@
-
-import {useState, useEffect} from 'react'
+import React from 'react'
 import CRUD from '../components/CRUD'
-import {USER_STATUS} from '../constants/code_mapping'
-import { Tag, Select, Input } from 'antd'
-import { getAllRoles } from '../service/role'
-import { getUserPage } from '../service/user'
+import { SUCCESS_FLAG, SUCCESS_FLAG_OPTIONS , OPERATION_TYPES, OPERATION_TYPES_OPTIONS} from '../constants/code_mapping'
+import {Input, Select} from 'antd'
+import { getLogPage } from '../service/log'
 export default function LogQuery() {
-    const [roleOptions, setRoleOptions] = useState([])
-    useEffect(() => {
-        getAllRoles().then(res => {
-            const options = res.map(role => ({
-                value: role.id,
-                label: role.roleName
-            }))
-            setRoleOptions(options);
-        })
-    }, [])
 
     const columns = [
         {
-            title: "登录ID",
-            dataIndex: 'loginId',
+            title: '操作类型',
+            dataIndex: 'operationType',
+            render: type => OPERATION_TYPES[type],
+            width:100
         },
         {
-            title: "用户名",
-            dataIndex: 'username',
-            editable: true,
-            component: <Input />,
-            rules:[
-                {
-                    required : true,
-                    message :'用户名必填'
-                }
-            ]
+            title: '操作目标',
+            dataIndex: 'operationTarget',
         },
         {
-            title: "状态",
-            dataIndex: 'status',
-            render: (text) => {
-                return USER_STATUS[text]
-            },
+            title: '操作内容',
+            dataIndex: 'content',
         },
         {
-            title: "手机号",
-            dataIndex: 'phoneNumber',
-            editable: true,
-            component: <Input />
+            title: '操作结果',
+            dataIndex: 'successFlag',
+            render: flag => SUCCESS_FLAG[flag]
         },
         {
-            title: "邮箱",
-            dataIndex: 'email',
-            editable: true,
-            component: <Input />
+            title: '请求耗时',
+            dataIndex: 'costTime',
         },
         {
-            title: "分配角色",
-            dataIndex: 'roles',
-            editable: true,
-            render: (text, record, index) => {
-                const { roles } = record;
-                const tags = roles.map(item => (<Tag key={item.id} color="blue">
-                    {item.roleName}
-                </Tag>))
-                return (
-                    tags
-                )
-            },
-            component: <Select mode="tags" options={roleOptions} />
+            title: '失败信息',
+            dataIndex: 'exceptionInfo',
+            ellipsis:true
         },
         {
-            title: "创建时间",
+            title: '请求参数',
+            dataIndex: 'parameter',
+            ellipsis:true
+        },
+        {
+            title: '响应结果',
+            dataIndex: 'response',
+            ellipsis:true
+        },
+        {
+            title: 'IP地址',
+            dataIndex: 'ip',
+        },
+        {
+            title: '操作时间',
             dataIndex: 'createAt',
         }
     ]
-
     const queryConfig = {
+        conditions : [
+            {
+                label : '操作类型',
+                name: 'operationType',
+                component: <Select options={OPERATION_TYPES_OPTIONS} allowClear />,
+                span: 3
+            },
+            {
+                label : '操作目标',
+                name: 'operationTarget',
+                component: <Input />
+            },
+            {
+                label : '操作结果',
+                name: 'successFlag',
+                component: <Select options={SUCCESS_FLAG_OPTIONS} allowClear/>
+            }
+        ],
         doQuery: (conditions) => {
-           return getUserPage(conditions)
+            console.log(conditions)
+            return getLogPage({...conditions,sort: [{field:'id',direction:'desc'}]})
         }
     }
-
     const paginationConfig = {
 
     }
-
-    return (
-        <CRUD columns= {columns} 
-        queryConfig = {queryConfig}
-        paginationConfig = {paginationConfig}
-        >
-            
-        </CRUD>
-    )
+  return (
+    <CRUD 
+    columns = {columns}
+    queryConfig = {queryConfig}
+    paginationConfig = {paginationConfig}
+    />
+  )
 }

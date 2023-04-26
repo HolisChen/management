@@ -5,3 +5,7 @@
 export function convertFromMap(mapping) {
     return Object.keys(mapping).map(key => ({label: mapping[key], value: Number(key)}))
 }
+
+export function convertAsStringKey(mapping) {
+    return Object.keys(mapping).map(key => ({label: mapping[key], value: key}))
+}

@@ -16,15 +16,15 @@ public class LogEntity {
     private Integer id;
 
     @Column(name = "operation_type")
-    private String type;
+    private String operationType;
 
     @Column(name = "operation_target")
-    private String target;
+    private String operationTarget;
 
     private String content;
 
     @Column(name = "success_flag")
-    private Byte success;
+    private Byte successFlag;
 
     @Column(name = "exception_info")
     private String exceptionInfo;

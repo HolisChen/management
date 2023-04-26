@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography,Pagination  } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography, Pagination } from 'antd'
 import FormItem from "antd/es/form/FormItem"
 import EditableCell from '../EditableCell'
 
@@ -10,13 +10,12 @@ import EditableCell from '../EditableCell'
  * @returns 
  */
 export default function CRUD(props) {
-  console.log(props)
-  const { columns, queryConfig = {}, rowKey = 'id', createConfig = false, updateConfig = false, deleteConfig = false, rowOperations = [], paginationConfig= false } = props
-  const { conditions = [], doQuery } = queryConfig
+  const { columns = [], queryConfig = {}, rowKey = 'id', createConfig = false, updateConfig = false, deleteConfig = false, rowOperations = [], paginationConfig = false } = props
+  const { conditions = [], doQuery, initQuery = true, onDatasourceChange = false } = queryConfig
   const { modalTitle = '', createFormItems = [], doCreate } = createConfig
-  const { mode: updateMode = 'row', doUpdate } = updateConfig
-  const { mode: rowDeleteMode = 'row', doDelete } = deleteConfig
-  const { totalName = 'total', contentName = 'contents'} = paginationConfig
+  const { mode: updateMode = 'row', doUpdate, initUpdateFieldsValue = (record) => ({ ...record }) } = updateConfig
+  const { mode: rowDeleteMode = 'row', doDelete, buttonName: deleteBtnName = '删除'} = deleteConfig
+  const { totalName = 'total', contentName = 'contents' } = paginationConfig
   const [queryForm] = Form.useForm()
   const [editForm] = Form.useForm()
   const [addForm] = Form.useForm()
@@ -27,6 +26,18 @@ export default function CRUD(props) {
   const [selectRowKeys, setSelectRowKeys] = useState([])
   const batchDelete = rowDeleteMode === 'batch'
   const rowDelete = rowDeleteMode === 'row'
+
+  useEffect(() => {
+    if (initQuery) {
+      queryData()
+    }
+  }, [])
+
+  useEffect(() => {
+    if(typeof onDatasourceChange === 'function') {
+        onDatasourceChange(dataSource)
+    }
+  }, [dataSource])
 
   const rowSelection = batchDelete ? {
     type: 'checkbox',
@@ -53,7 +64,7 @@ export default function CRUD(props) {
   })
 
   const isRowUpdateMode = updateMode === 'row'
-  const showOperationColumn = isRowUpdateMode || rowDelete || rowOperations.length
+  const showOperationColumn = (isRowUpdateMode && updateConfig) || (rowDelete && deleteConfig) || rowOperations.length
 
 
   const editAbleColumns = columns.map(col => {
@@ -69,7 +80,7 @@ export default function CRUD(props) {
     return col
   })
 
-  
+
 
   if (showOperationColumn) {
     editAbleColumns.push({
@@ -78,14 +89,15 @@ export default function CRUD(props) {
       render: (text, record, index) => {
         const editable = isEditing(record)
         const addtionalRowOperations = rowOperations.map((item, index) => {
-          const {title, onClick} = item 
-          return (<Typography.Link key={index} onClick={() => onClick(record)}>{title}</Typography.Link>
+          const { title, onClick } = item
+          const showTitle = typeof title === 'function' ? title(record) : title
+          return (<Typography.Link key={index} onClick={() => onClick(record, dataSource, setDataSource)}>{showTitle}</Typography.Link>
           )
         })
 
-        const rowDeleteBtn = rowDelete ?
+        const rowDeleteBtn = deleteConfig && rowDelete ?
           (<Popconfirm title="确定删除吗？" okText="确定" cancelText="取消" onConfirm={() => { onDelete(record) }}>
-            <Typography.Link disabled={editingId !== ''} type="danger">删除</Typography.Link>
+            <Typography.Link disabled={editingId !== ''} type="danger">{deleteBtnName}</Typography.Link>
           </Popconfirm>) : <></>
         const rowUpdateBtn = isRowUpdateMode ?
           (<Typography.Link disabled={editingId !== ''} onClick={() => onEdit(record)}>编辑</Typography.Link>) : <></>
@@ -114,15 +126,16 @@ export default function CRUD(props) {
   const queryData = () => {
     if (typeof doQuery === 'function') {
       queryForm.validateFields().then(data => doQuery(data)).then(res => {
-        if(paginationConfig) {
+        if (paginationConfig) {
           setDataSource(res[contentName])
         } else {
           setDataSource(res)
         }
-        
-      }).catch(e => { console.log(e)})
+
+      }).catch(e => { console.log(e) })
     }
   }
+
 
   const onCreateClick = (e) => {
     addForm.resetFields()
@@ -171,7 +184,7 @@ export default function CRUD(props) {
 
   const onEdit = (record) => {
     setEditingId(record[rowKey])
-    editForm.setFieldsValue({ ...record })
+    editForm.setFieldsValue(initUpdateFieldsValue(record))
   }
 
   const onSaveEdit = (record) => {
@@ -189,18 +202,18 @@ export default function CRUD(props) {
   const deleteCount = selectRowKeys.length;
   const batchDeleteBtn = batchDelete ? (
     <Popconfirm title={'删除数据'} description={`确定要删除这${deleteCount}条记录吗？`} okText={'是的'} cancelText={'点错了'} onConfirm={() => { onBatchDelete() }} disabled={!deleteCount}>
-      <Button danger type='primary' disabled={!selectRowKeys.length}>删除</Button>
+      <Button danger type='primary' disabled={!selectRowKeys.length}>{deleteBtnName}</Button>
     </Popconfirm>
   ) : <></>
 
-  const paginationContent = paginationConfig ? <Pagination total={total} showSizeChanger/> : <></>
+  const paginationContent = paginationConfig ? <Pagination total={total} showSizeChanger /> : <></>
   return (
     <>
       <Form form={queryForm}>
         <Row>
           {queryFormItems}
           <Button type='primary' onClick={onQueryClick} >查询</Button>
-          <Button onClick={()=> {queryForm.resetFields()}}>重置</Button>
+          <Button onClick={() => { queryForm.resetFields() }}>重置</Button>
           {createBtn}
           {batchDeleteBtn}
         </Row>
@@ -220,7 +233,7 @@ export default function CRUD(props) {
         ></Table>
         {paginationContent}
       </Form>
-      <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel}>
+      <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel} okText={'确定'} cancelText = '取消'>
         <Form form={addForm}>
           {addFormItems}
         </Form>

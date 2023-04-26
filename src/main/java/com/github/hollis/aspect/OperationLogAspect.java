@@ -37,20 +37,20 @@ public class OperationLogAspect {
         HttpServletRequest request =  WebUtil.getHttpServletRequest();
         LogEntity logEntity = new LogEntity();
         logEntity.setCreateBy(userId);
-        logEntity.setType(log.type().name());
-        logEntity.setTarget(log.target().getCode());
+        logEntity.setOperationType(log.type().name());
+        logEntity.setOperationTarget(log.target().getCode());
         logEntity.setContent(log.content());
         logEntity.setParameter(args == null ? "" : JSON.toJSONString(args));
         logEntity.setIp(WebUtil.getIpAddress(request));
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed(args);
-            logEntity.setSuccess((byte) 1);
+            logEntity.setSuccessFlag((byte) 1);
             logEntity.setResponse(null == result ? "" : JSON.toJSONString(result));
             return result;
         }catch (Throwable e) {
             logEntity.setExceptionInfo(e.getMessage());
-            logEntity.setSuccess((byte) 0);
+            logEntity.setSuccessFlag((byte) 0);
             throw e;
         } finally {
             logEntity.setCostTime(System.currentTimeMillis() - start);
