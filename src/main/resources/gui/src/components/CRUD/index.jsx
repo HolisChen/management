@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography } from 'antd'
+import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography,Pagination  } from 'antd'
 import FormItem from "antd/es/form/FormItem"
 import EditableCell from '../EditableCell'
 
@@ -10,16 +10,17 @@ import EditableCell from '../EditableCell'
  * @returns 
  */
 export default function CRUD(props) {
-  const { config } = props
-  const { columns, query, rowKey = 'id', create, update, deleteRow, rowOperations = [] } = config
-  const { conditions = [], doQuery } = query
-  const { modalTitle = '', createFormItems = [], doCreate } = create
-  const { mode: updateMode = 'row', doUpdate } = update
-  const { mode: rowDeleteMode = 'row', doDelete } = deleteRow
+  const { columns, queryConfig, rowKey = 'id', createConfig, updateConfig, deleteConfig, rowOperations = [], paginationConfig= false } = props
+  const { conditions = [], doQuery } = queryConfig
+  const { modalTitle = '', createFormItems = [], doCreate } = createConfig
+  const { mode: updateMode = 'row', doUpdate } = updateConfig
+  const { mode: rowDeleteMode = 'row', doDelete } = deleteConfig
+  const { totalName = 'total', contentName = 'contents'} = paginationConfig
   const [queryForm] = Form.useForm()
   const [editForm] = Form.useForm()
   const [addForm] = Form.useForm()
   const [dataSource, setDataSource] = useState([])
+  const [total, setTotal] = useState(0)
   const [openAdd, setOpenAdd] = useState(false)
   const [editingId, setEditingId] = useState('')
   const [selectRowKeys, setSelectRowKeys] = useState([])
@@ -33,6 +34,7 @@ export default function CRUD(props) {
     }
   } : false
 
+  const pagination = paginationConfig ? {} : false
 
   const queryFormItems = conditions.map((item, index) => (
     <Col span={item.span || 6} key={index}>
@@ -112,8 +114,13 @@ export default function CRUD(props) {
 
   const queryData = () => {
     if (typeof doQuery === 'function') {
-      queryForm.validateFields().then(data => doQuery(data).then(dataList => {
-        setDataSource(dataList);
+      queryForm.validateFields().then(data => doQuery(data).then(res => {
+        if(paginationConfig) {
+          setDataSource(res[contentName])
+        } else {
+          setDataSource(res)
+        }
+        
       })).catch(e => { })
     }
   }
@@ -178,7 +185,7 @@ export default function CRUD(props) {
     }
   }
 
-  const createBtn = create ? <Button onClick={onCreateClick}>新增</Button> : <></>
+  const createBtn = createConfig ? <Button onClick={onCreateClick}>新增</Button> : <></>
 
   const deleteCount = selectRowKeys.length;
   const batchDeleteBtn = batchDelete ? (
@@ -186,6 +193,8 @@ export default function CRUD(props) {
       <Button danger type='primary' disabled={!selectRowKeys.length}>删除</Button>
     </Popconfirm>
   ) : <></>
+
+  const paginationContent = paginationConfig ? <Pagination total={total} showSizeChanger/> : <></>
   return (
     <>
       <Form form={queryForm}>
@@ -208,7 +217,9 @@ export default function CRUD(props) {
               cell: EditableCell
             }
           }}
+          pagination={pagination}
         ></Table>
+        {paginationContent}
       </Form>
       <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel}>
         <Form form={addForm}>
