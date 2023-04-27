@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography, Pagination } from 'antd'
 import FormItem from "antd/es/form/FormItem"
 import EditableCell from '../EditableCell'
+import './index.css'
 
 /**
  * 
@@ -15,7 +16,7 @@ export default function CRUD(props) {
   const { modalTitle = '', createFormItems = [], doCreate } = createConfig
   const { mode: updateMode = 'row', doUpdate, initUpdateFieldsValue = (record) => ({ ...record }) } = updateConfig
   const { mode: rowDeleteMode = 'row', doDelete, buttonName: deleteBtnName = '删除' } = deleteConfig
-  const { totalName = 'total', contentName = 'contents' } = paginationConfig
+  const { totalName = 'total', contentName = 'contents', pageNoName = 'pageNo', pageSizeName = 'pageSize' } = paginationConfig
   const [queryForm] = Form.useForm()
   const [editForm] = Form.useForm()
   const [addForm] = Form.useForm()
@@ -24,20 +25,35 @@ export default function CRUD(props) {
   const [openAdd, setOpenAdd] = useState(false)
   const [editingId, setEditingId] = useState('')
   const [selectRowKeys, setSelectRowKeys] = useState([])
+  const [queryDivHeight, setQueryDivHeight] = useState(0)
+  const [pageNo, setPageNo] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+
+
+
   const batchDelete = rowDeleteMode === 'batch'
   const rowDelete = rowDeleteMode === 'row'
 
-  useEffect(() => {
-    if (initQuery) {
-      queryData()
-    }
-  }, [])
+  const queryDivRef = useRef()
 
   useEffect(() => {
     if (typeof onDatasourceChange === 'function') {
       onDatasourceChange(dataSource)
     }
   }, [dataSource])
+
+  useEffect(() => {
+    queryData()
+  }, [pageNo, pageSize])
+
+  useEffect(() => {
+    if (initQuery) {
+      queryData()
+    }
+    setQueryDivHeight(queryDivRef.current.offsetHeight)
+  }, [])
+
+  const height = window.innerHeight - 64 - queryDivHeight;
 
   const rowSelection = batchDelete ? {
     type: 'checkbox',
@@ -125,18 +141,22 @@ export default function CRUD(props) {
 
   const queryData = () => {
     if (typeof doQuery === 'function') {
-      queryForm.validateFields().then(data => doQuery(data)).then(res => {
+      queryForm.validateFields().then(data => {
+        data = data || {}
+        data[pageNoName] = pageNo
+        data[pageSizeName] = pageSize
+        return doQuery(data)
+      }).then(res => {
         if (paginationConfig) {
           setDataSource(res[contentName])
           setTotal(res[totalName])
+          setPageNo(res[pageNoName])
         } else {
           setDataSource(res)
         }
-
       }).catch(e => { console.log(e) })
     }
   }
-
 
   const onCreateClick = (e) => {
     addForm.resetFields()
@@ -197,7 +217,7 @@ export default function CRUD(props) {
         .catch(e => { })
     }
   }
-
+  const tableScrollY = height - 39 - (paginationConfig ? 32 : 0)
   const createBtn = createConfig ? <Button onClick={onCreateClick}>新增</Button> : <></>
 
   const deleteCount = selectRowKeys.length;
@@ -211,22 +231,29 @@ export default function CRUD(props) {
     total={total}
     showSizeChanger
     defaultCurrent={1}
-    defaultPageSize={10}
+    current={pageNo}
+    defaultPageSize={pageSize}
+    onChange={(page, perPage) => {
+      setPageNo(page)
+      setPageSize(perPage)
+    }}
     showTotal={(total, range) => {
       return `共${total}条记录`
     }} /> : <></>
   return (
     <>
-      <Form form={queryForm}>
-        <Row>
-          {queryFormItems}
-          <Button type='primary' onClick={onQueryClick} >查询</Button>
-          <Button onClick={() => { queryForm.resetFields() }}>重置</Button>
-          {createBtn}
-          {batchDeleteBtn}
-        </Row>
-      </Form>
-      <Form form={editForm}>
+      <div ref={queryDivRef}>
+        <Form form={queryForm}>
+          <Row>
+            {queryFormItems}
+            <Button type='primary' onClick={onQueryClick} >查询</Button>
+            <Button onClick={() => { queryForm.resetFields() }}>重置</Button>
+            {createBtn}
+            {batchDeleteBtn}
+          </Row>
+        </Form>
+      </div>
+      <Form form={editForm} className='table-form' style={{ height: height }}>
         <Table dataSource={dataSource}
           columns={editAbleColumns}
           bordered
@@ -238,7 +265,10 @@ export default function CRUD(props) {
             }
           }}
           pagination={false}
-        ></Table>
+          size='small'
+          scroll={{ y: `${tableScrollY}px`, scrollToFirstRowOnChange: true }}
+        >
+        </Table>
         {paginationContent}
       </Form>
       <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel} okText={'确定'} cancelText='取消'>

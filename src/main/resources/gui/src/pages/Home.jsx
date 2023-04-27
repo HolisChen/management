@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom'
+import { useNavigate, Outlet, useLocation } from 'react-router-dom'
 import { Layout, Menu, Breadcrumb } from 'antd'
 import { getMenuList } from '../service/resource'
 import { getCurrentUser } from '../service/user'
 import LoginUser from '../components/LoginUser'
 import '../css/home.css'
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 /**
  * 初始化面包屑Map
@@ -35,15 +35,15 @@ function buildBreadcrumbItems(menus, location) {
   const crumbMap = initCrumbMap(menus)
   const pathSnippets = location.pathname.split('/').filter((i) => i);
   const extraBreadcrumbItems = pathSnippets.map((_, index) => {
-    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`
     return {
       key: url,
-      title: <Link className='crumbItem' to={url}>{crumbMap[url]}</Link>,
+      title: <span className='crumbItem' to={url}>{crumbMap[url]}</span>,
     };
   });
   return [
     {
-      title: <Link className='crumbItem' to="/">首页</Link>,
+      title: <span className='crumbItem' to="/">首页</span>,
       key: 'home',
     },
   ].concat(extraBreadcrumbItems);
@@ -70,17 +70,20 @@ export default function Home() {
   }
   const location = useLocation()
   const breadcrumbItems = buildBreadcrumbItems(menus, location)
+  const paths = location.pathname.split('/').filter(i => i)
+  const expandKey = paths.length > 1 ? paths.filter((_,index) => index < paths.length - 1).map(path => `/${path}`) : false
+  console.log(expandKey)
   return (
     <Layout style={{ minHeight: '100vh', }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(val) => setCollapsed(val)}>
-        <Menu items={menus} mode="inline" onClick={menuClick} theme='dark' defaultSelectedKeys={"/dashboard"} />
+        <Menu items={menus} mode="inline" onClick={menuClick} theme='dark' defaultSelectedKeys={location.pathname} defaultOpenKeys={expandKey} />
       </Sider>
       <Layout>
         <Header className='header'>
           <Breadcrumb className='crumb' items={breadcrumbItems} />
-          <LoginUser user={currentUser}/>
+          <LoginUser user={currentUser} />
         </Header>
-        <Content style={{overflow:'scroll', height:''}}>
+        <Content className='main'>
           <Outlet />
         </Content>
         {/* <Footer style={{ textAlign: 'center', fontWeight: 'bold' }}>Ant Design</Footer> */}
