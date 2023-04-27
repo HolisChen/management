@@ -3,6 +3,7 @@ import React from 'react'
 import CRUD from '../components/CRUD'
 import { Input } from 'antd'
 import { addRole, deleteRole, getAllRoles, updateRole } from '../service/role'
+import { formatDate } from '../utils/date_util'
 export default function Role() {
     const columns = [
         {
@@ -38,6 +39,7 @@ export default function Role() {
         {
             title: "创建时间",
             dataIndex: 'createAt',
+            render: (text) => formatDate(text)
         },
     ]
     const queryConfig = {

@@ -80,10 +80,10 @@ export default function Home() {
           <Breadcrumb className='crumb' items={breadcrumbItems} />
           <LoginUser user={currentUser}/>
         </Header>
-        <Content>
+        <Content style={{overflow:'scroll', height:''}}>
           <Outlet />
         </Content>
-        <Footer style={{ textAlign: 'center', fontWeight: 'bold' }}>Ant Design</Footer>
+        {/* <Footer style={{ textAlign: 'center', fontWeight: 'bold' }}>Ant Design</Footer> */}
       </Layout>
     </Layout>
   )

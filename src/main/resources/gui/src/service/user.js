@@ -34,3 +34,7 @@ export async function addUser(payload) {
 export async function deleteUser(userId) {
     return request.delete(`/api/user/${userId}/delete`)
 }
+
+export async function resetPassword(userId) {
+    return request.put(`/api/user/${userId}/resetPassword`)
+}

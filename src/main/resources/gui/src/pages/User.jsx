@@ -4,7 +4,8 @@ import CRUD from '../components/CRUD'
 import { USER_STATUS, USER_STATUS_OPTIONS } from '../constants/code_mapping'
 import { Tag, Select, Input, message } from 'antd'
 import { getAllRoles } from '../service/role'
-import { addUser, deleteUser, disableUser, enableUser, getUserPage, updateUser } from '../service/user'
+import { addUser, deleteUser, disableUser, enableUser, getUserPage, resetPassword, updateUser } from '../service/user'
+import { formatDate } from '../utils/date_util'
 export default function User() {
     const [roleOptions, setRoleOptions] = useState([])
     useEffect(() => {
@@ -71,6 +72,7 @@ export default function User() {
         {
             title: "创建时间",
             dataIndex: 'createAt',
+            render: (text) => formatDate(text)
         }
     ]
 
@@ -129,6 +131,19 @@ export default function User() {
                     message.success(tips)
                 }).catch(err => {
                 })
+
+            }
+        },
+        {
+            title:'重置密码',
+            onClick: (row, rowList, setRowList) => {
+                const {id:userId} = row
+                resetPassword(userId)
+                    .then(newPassword => {
+                        message.success(`密码重置成功，新密码是：${newPassword}`)
+                    }).catch(err => {
+
+                    })
 
             }
         }

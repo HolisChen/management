@@ -117,4 +117,17 @@ public class UserService {
     public Page<UserEntity> queryUserByPage(QueryUserDto dto) {
         return userRepository.findAll(dto.toSpecification(), dto.toPageable());
     }
+
+    public String resetPassword(Integer userId) {
+        String newPassword = "123456";
+        String newEncodedPassword = passwordEncoder.encode(newPassword);
+        userRepository.findById(userId)
+                .ifPresent(user -> {
+                    user.setUpdateBy(UserUtil.getCurrentUserId());
+                    user.setPassword(newEncodedPassword);
+                    userRepository.save(user);
+                    EventUtils.publish(new UserForceLogoutEvent(userId));
+                });
+        return newPassword;
+    }
 }

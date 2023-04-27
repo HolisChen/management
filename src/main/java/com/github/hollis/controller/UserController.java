@@ -1,5 +1,6 @@
 package com.github.hollis.controller;
 
+import com.github.hollis.aspect.OperationLog;
 import com.github.hollis.dao.entity.RoleEntity;
 import com.github.hollis.dao.entity.UserEntity;
 import com.github.hollis.domain.dto.permission.CreateUserDto;
@@ -9,6 +10,8 @@ import com.github.hollis.domain.vo.base.BaseVo;
 import com.github.hollis.domain.vo.base.PageResponse;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.domain.vo.permission.UserVo;
+import com.github.hollis.enums.OperationTargetEnum;
+import com.github.hollis.enums.OperationTypeEnum;
 import com.github.hollis.event.UserForceLogoutEvent;
 import com.github.hollis.mapper.RoleMapper;
 import com.github.hollis.mapper.UserMapper;
@@ -71,6 +74,7 @@ public class UserController {
 
     @PostMapping
     @ApiOperation(value = "添加用户")
+    @OperationLog(type = OperationTypeEnum.CREATE, target = OperationTargetEnum.USER, content = "创建用户")
     public Result<Void> createUser(@Validated @RequestBody CreateUserDto reqDto) {
         userService.addUser(reqDto);
         return Result.success();
@@ -78,6 +82,7 @@ public class UserController {
 
     @PutMapping
     @ApiOperation(value = "修改用户信息")
+    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "修改用户信息")
     public Result<Void> updateUserInfo(@Validated @RequestBody UpdateUserDto reqDto) {
         userService.updateUser(reqDto);
         return Result.success();
@@ -85,6 +90,7 @@ public class UserController {
 
     @PutMapping("/{userId}/disable")
     @ApiOperation(value = "禁用用户")
+    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "禁用用户")
     public Result<Void> disableUser(@PathVariable Integer userId) {
         userService.disableUser(userId);
         return Result.success();
@@ -92,6 +98,7 @@ public class UserController {
 
     @PutMapping("/{userId}/enable")
     @ApiOperation(value = "启用用户")
+    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "启用用户")
     public Result<Void> enableUser(@PathVariable Integer userId) {
         userService.enableUser(userId);
         return Result.success();
@@ -99,13 +106,15 @@ public class UserController {
 
     @PutMapping("/{userId}/resetPassword")
     @ApiOperation(value = "重置用户密码")
-    public Result<Void> resetPassword(@PathVariable Integer userId) {
-        return Result.success();
+    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "重置用户密码")
+    public Result<String> resetPassword(@PathVariable Integer userId) {
+        return Result.success(userService.resetPassword(userId));
     }
 
 
     @DeleteMapping("/{userId}/delete")
     @ApiOperation(value = "删除用户")
+    @OperationLog(type = OperationTypeEnum.DELETE, target = OperationTargetEnum.USER, content = "删除用户")
     public Result<Void> deleteUser(@PathVariable Integer userId) {
         userService.deleteUser(userId);
         return Result.success();

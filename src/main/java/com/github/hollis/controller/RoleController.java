@@ -39,7 +39,7 @@ public class RoleController {
 
     @ApiOperation(value = "添加一个角色")
     @PostMapping
-    @OperationLog(type = OperationTypeEnum.CREATE, target = OperationTargetEnum.ROLE)
+    @OperationLog(type = OperationTypeEnum.CREATE, target = OperationTargetEnum.ROLE, content = "创建角色")
     public Result<Void> addRole(@RequestBody CreateRoleDto dto) {
         roleService.addRole(dto);
         return Result.success();
@@ -47,7 +47,7 @@ public class RoleController {
 
     @ApiOperation(value = "编辑一个角色")
     @PutMapping
-    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.ROLE)
+    @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.ROLE, content = "修改角色信息")
     public Result<Void> updateRole(@RequestBody UpdateRoleDto dto) {
         roleService.updateRole(dto);
         return Result.success();
@@ -55,7 +55,7 @@ public class RoleController {
 
     @ApiOperation(value = "删除角色")
     @DeleteMapping("/{roleId}")
-    @OperationLog(type = OperationTypeEnum.DELETE, target = OperationTargetEnum.ROLE)
+    @OperationLog(type = OperationTypeEnum.DELETE, target = OperationTargetEnum.ROLE, content = "删除角色")
     public Result<Void> deleteRole(@PathVariable Integer roleId) {
         permissionService.deleteRole(roleId);
         return Result.success();

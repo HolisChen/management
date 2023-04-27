@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { getResourceTree, updateResource, addResource, removeResource } from '../service/resource';
 import { RESOURCE_TYPES, RESOURCE_OPTIONS } from '../constants/code_mapping';
 import CRUD from '../components/CRUD';
+import { formatDate } from '../utils/date_util';
 
 const buildResourceTreeSelect = (resources) => {
   if (resources.length) {
@@ -80,8 +81,7 @@ export default function Menu() {
       {
           title: '创建时间',
           dataIndex: 'createAt',
-          key: 'createAt',
-          dataType: 'datetime',
+          render: (text) => formatDate(text)
       }]
 
   const queryConfig = {

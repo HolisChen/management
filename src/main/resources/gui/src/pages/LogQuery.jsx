@@ -3,6 +3,7 @@ import CRUD from '../components/CRUD'
 import { SUCCESS_FLAG, SUCCESS_FLAG_OPTIONS , OPERATION_TYPES, OPERATION_TYPES_OPTIONS} from '../constants/code_mapping'
 import {Input, Select} from 'antd'
 import { getLogPage } from '../service/log'
+import { formatDate } from '../utils/date_util'
 export default function LogQuery() {
 
     const columns = [
@@ -51,6 +52,7 @@ export default function LogQuery() {
         {
             title: '操作时间',
             dataIndex: 'createAt',
+            render: (text) => formatDate(text)
         }
     ]
     const queryConfig = {
@@ -73,7 +75,6 @@ export default function LogQuery() {
             }
         ],
         doQuery: (conditions) => {
-            console.log(conditions)
             return getLogPage({...conditions,sort: [{field:'id',direction:'desc'}]})
         }
     }

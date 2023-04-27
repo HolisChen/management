@@ -14,7 +14,7 @@ export default function CRUD(props) {
   const { conditions = [], doQuery, initQuery = true, onDatasourceChange = false } = queryConfig
   const { modalTitle = '', createFormItems = [], doCreate } = createConfig
   const { mode: updateMode = 'row', doUpdate, initUpdateFieldsValue = (record) => ({ ...record }) } = updateConfig
-  const { mode: rowDeleteMode = 'row', doDelete, buttonName: deleteBtnName = '删除'} = deleteConfig
+  const { mode: rowDeleteMode = 'row', doDelete, buttonName: deleteBtnName = '删除' } = deleteConfig
   const { totalName = 'total', contentName = 'contents' } = paginationConfig
   const [queryForm] = Form.useForm()
   const [editForm] = Form.useForm()
@@ -34,8 +34,8 @@ export default function CRUD(props) {
   }, [])
 
   useEffect(() => {
-    if(typeof onDatasourceChange === 'function') {
-        onDatasourceChange(dataSource)
+    if (typeof onDatasourceChange === 'function') {
+      onDatasourceChange(dataSource)
     }
   }, [dataSource])
 
@@ -128,6 +128,7 @@ export default function CRUD(props) {
       queryForm.validateFields().then(data => doQuery(data)).then(res => {
         if (paginationConfig) {
           setDataSource(res[contentName])
+          setTotal(res[totalName])
         } else {
           setDataSource(res)
         }
@@ -206,7 +207,14 @@ export default function CRUD(props) {
     </Popconfirm>
   ) : <></>
 
-  const paginationContent = paginationConfig ? <Pagination total={total} showSizeChanger /> : <></>
+  const paginationContent = paginationConfig ? <Pagination
+    total={total}
+    showSizeChanger
+    defaultCurrent={1}
+    defaultPageSize={10}
+    showTotal={(total, range) => {
+      return `共${total}条记录`
+    }} /> : <></>
   return (
     <>
       <Form form={queryForm}>
@@ -233,7 +241,7 @@ export default function CRUD(props) {
         ></Table>
         {paginationContent}
       </Form>
-      <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel} okText={'确定'} cancelText = '取消'>
+      <Modal title={modalTitle} open={openAdd} onOk={onCreateModalConfirm} onCancel={onCreateModalCacel} okText={'确定'} cancelText='取消'>
         <Form form={addForm}>
           {addFormItems}
         </Form>
