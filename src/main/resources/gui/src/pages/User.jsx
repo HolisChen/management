@@ -116,7 +116,7 @@ export default function User() {
 
     const rowOperations = [
         {
-            title: (row) => row.status === 1 ? '禁用' : '启用',
+            buttonName: (row) => row.status === 1 ? '禁用' : '启用',
             onClick: (row, rowList, setRowList) => {
                 const tips = row.status === 1 ? '禁用成功' : '启用成功'
                 const invokeFunction = row.status === 1 ? disableUser : enableUser
@@ -135,7 +135,7 @@ export default function User() {
             }
         },
         {
-            title:'重置密码',
+            buttonName:'重置密码',
             onClick: (row, rowList, setRowList) => {
                 const {id:userId} = row
                 resetPassword(userId)

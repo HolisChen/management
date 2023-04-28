@@ -72,7 +72,6 @@ export default function Home() {
   const breadcrumbItems = buildBreadcrumbItems(menus, location)
   const paths = location.pathname.split('/').filter(i => i)
   const expandKey = paths.length > 1 ? paths.filter((_,index) => index < paths.length - 1).map(path => `/${path}`) : false
-  console.log(expandKey)
   return (
     <Layout style={{ minHeight: '100vh', }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(val) => setCollapsed(val)}>

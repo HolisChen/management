@@ -14,3 +14,11 @@ export async function addRole(payload) {
 export async function deleteRole(roleId) {
     return request.delete(`/api/role/${roleId}`)
 }
+
+export async function getResourceByRole(roleId) {
+    return request.get(`/api/role/${roleId}/resourceTree`)
+}
+
+export async function saveResourceByRole(roleId, payload) {
+    return request.post(`/api/role/${roleId}/resource`, payload)
+}

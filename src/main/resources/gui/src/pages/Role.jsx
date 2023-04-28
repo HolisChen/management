@@ -1,8 +1,8 @@
 
-import React from 'react'
+import React, { useState } from 'react'
 import CRUD from '../components/CRUD'
-import { Input } from 'antd'
-import { addRole, deleteRole, getAllRoles, updateRole } from '../service/role'
+import { Input, Modal, Tree, message } from 'antd'
+import { addRole, deleteRole, getAllRoles, getResourceByRole, saveResourceByRole, updateRole } from '../service/role'
 import { formatDate } from '../utils/date_util'
 export default function Role() {
     const columns = [
@@ -12,10 +12,10 @@ export default function Role() {
             editable: true,
             component: <Input />,
             rules: [
-              {
-                required: true,
-                message:'角色编码必填'
-              }
+                {
+                    required: true,
+                    message: '角色编码必填'
+                }
             ]
         },
         {
@@ -24,10 +24,10 @@ export default function Role() {
             editable: true,
             component: <Input />,
             rules: [
-              {
-                required: true,
-                message:'角色名称必填'
-              }
+                {
+                    required: true,
+                    message: '角色名称必填'
+                }
             ]
         },
         {
@@ -110,17 +110,97 @@ export default function Role() {
         }
     }
     const paginationConfig = {
-        totalName : 'total'
+        totalName: 'total'
+    }
+
+    const rowOperations = [
+        {
+            buttonName: '分配权限',
+            onClick: (row) => {
+                const { id, roleName } = row
+                setBindModalOpen(true)
+                queryBindResource(id)
+                setEditRoleId(id)
+            }
+        }
+    ]
+
+    const [bindResource, setBindResource] = useState([])
+    const [checkedKeys, setCheckedKeys] = useState([])
+    const [halfCheckedKeys, setHalfCheckedKeys] = useState([])
+    const [bindModalOpen, setBindModalOpen] = useState(false)
+    const [editRoleId, setEditRoleId] = useState('')
+    const queryBindResource = (roleId) => {
+        getResourceByRole(roleId)
+            .then(res => {
+                setBindResource(res)
+                setCheckedKeys(getCheckedKeys(res))
+            })
+    }
+
+    const getCheckedKeys = (tree = []) => {
+        const keys = []
+        if (tree.length) {
+            tree.forEach(item => {
+                const { checked = false, children = [], id } = item
+                let hasChildrenSelected = false
+                if (children.length) {
+                    const childSelected = getCheckedKeys(children)
+                    hasChildrenSelected = childSelected.length > 0
+                    keys.push(...childSelected)
+                }
+                if (checked === true) {
+                    if (!children.length) {
+                        keys.push(id)
+                    }
+                }
+                
+            })
+        }
+        return keys;
+    }
+
+    const closeBindModal = () => {
+        setBindModalOpen(false)
+        setEditRoleId('')
+    }
+
+    const onCheck = (keys, e) => {
+        setHalfCheckedKeys(e.halfCheckedKeys)
+        setCheckedKeys(keys)
+    } 
+
+    const onSaveBind = () => {
+        saveResourceByRole(editRoleId, [...checkedKeys,...halfCheckedKeys])
+            .then(res => {
+                message.success('保存成功')
+                closeBindModal()
+            })
     }
 
     return (
         <div>
-            <CRUD columns = {columns} 
-            queryConfig = {queryConfig} 
-            createConfig = {createConfig}
-            updateConfig = {updateConfig}
-            deleteConfig = {deleteConfig}
+            <CRUD columns={columns}
+                queryConfig={queryConfig}
+                createConfig={createConfig}
+                updateConfig={updateConfig}
+                deleteConfig={deleteConfig}
+                rowOperations={rowOperations}
             ></CRUD>
+
+            <Modal title='分配权限' open={bindModalOpen} okText={'保存'} cancelText={'取消'} onCancel={closeBindModal} onOk={onSaveBind}>
+                <Tree
+                    checkable
+                    treeData={bindResource}
+                    fieldNames={{
+                        title: 'resourceName',
+                        key: 'id'
+                    }}
+                    checkedKeys={checkedKeys}
+                    onCheck={onCheck}
+                />
+            </Modal>
+
         </div>
     )
 }

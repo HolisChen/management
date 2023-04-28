@@ -18,7 +18,7 @@
 }
 .main {
     padding-left: 5px;
-    overflow: scroll;
+    overflow: auto;
     height: calc(100vh - 64px);
     background-color: #fff;
 }

@@ -27,7 +27,7 @@ export default function CRUD(props) {
   const [selectRowKeys, setSelectRowKeys] = useState([])
   const [queryDivHeight, setQueryDivHeight] = useState(0)
   const [pageNo, setPageNo] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(50)
 
 
 
@@ -105,9 +105,9 @@ export default function CRUD(props) {
       render: (text, record, index) => {
         const editable = isEditing(record)
         const addtionalRowOperations = rowOperations.map((item, index) => {
-          const { title, onClick } = item
-          const showTitle = typeof title === 'function' ? title(record) : title
-          return (<Typography.Link key={index} onClick={() => onClick(record, dataSource, setDataSource)}>{showTitle}</Typography.Link>
+          const { buttonName, onClick } = item
+          const showButton = typeof buttonName === 'function' ? buttonName(record) : buttonName
+          return (<Typography.Link key={index} onClick={() => onClick(record, dataSource, setDataSource)}>{showButton}</Typography.Link>
           )
         })
 
@@ -154,7 +154,7 @@ export default function CRUD(props) {
         } else {
           setDataSource(res)
         }
-      }).catch(e => { console.log(e) })
+      }).catch(e => {  })
     }
   }
 
@@ -217,7 +217,7 @@ export default function CRUD(props) {
         .catch(e => { })
     }
   }
-  const tableScrollY = height - 39 - (paginationConfig ? 32 : 0)
+  const tableScrollY = height - 40 - (paginationConfig ? 32 : 0)
   const createBtn = createConfig ? <Button onClick={onCreateClick}>新增</Button> : <></>
 
   const deleteCount = selectRowKeys.length;
