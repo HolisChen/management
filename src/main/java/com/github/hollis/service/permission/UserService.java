@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,6 +73,7 @@ public class UserService {
 
     /**
      * 更新用户信息
+     *
      * @param reqDto
      */
     public void updateUser(UpdateUserDto reqDto) {
@@ -129,5 +131,12 @@ public class UserService {
                     EventUtils.publish(new UserForceLogoutEvent(userId));
                 });
         return newPassword;
+    }
+
+    public List<UserEntity> findByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return userRepository.findAllById(ids);
     }
 }

@@ -37,6 +37,10 @@ export default function Role() {
             component: <Input />
         },
         {
+            title: "创建人",
+            dataIndex: 'createByName',
+        },
+        {
             title: "创建时间",
             dataIndex: 'createAt',
             render: (text) => formatDate(text)
@@ -143,16 +147,12 @@ export default function Role() {
         if (tree.length) {
             tree.forEach(item => {
                 const { checked = false, children = [], id } = item
-                let hasChildrenSelected = false
                 if (children.length) {
                     const childSelected = getCheckedKeys(children)
-                    hasChildrenSelected = childSelected.length > 0
                     keys.push(...childSelected)
                 }
-                if (checked === true) {
-                    if (!children.length) {
-                        keys.push(id)
-                    }
+                if (checked === true && !children.length) {
+                    keys.push(id)
                 }
                 
             })

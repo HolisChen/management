@@ -1,12 +1,12 @@
 package com.github.hollis.domain.vo.log;
 
+import com.github.hollis.domain.vo.base.BaseVo;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class LogVo {
-    private Integer id;
+public class LogVo extends BaseVo {
 
     private String operationType;
 
@@ -21,10 +21,6 @@ public class LogVo {
     private String parameter;
 
     private String response;
-
-    private Date createAt;
-
-    private Integer createBy;
 
     private Long costTime;
 

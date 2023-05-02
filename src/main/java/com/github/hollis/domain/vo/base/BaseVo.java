@@ -11,4 +11,7 @@ public class BaseVo {
     private Date updateAt;
     private Integer createBy;
     private Integer updateBy;
+
+    private String createByName;
+    private String updateByName;
 }

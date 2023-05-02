@@ -53,7 +53,11 @@ export default function LogQuery() {
             title: '操作时间',
             dataIndex: 'createAt',
             render: (text) => formatDate(text)
-        }
+        },
+        {
+            title: "操作人",
+            dataIndex: 'createByName',
+        },
     ]
     const queryConfig = {
         conditions : [

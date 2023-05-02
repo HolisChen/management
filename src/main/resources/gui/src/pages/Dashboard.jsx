@@ -1,7 +1,7 @@
 import React from 'react'
-
+import Loading from '../components/Loading'
 export default function Dashboard() {
   return (
-    <div>Dashboard</div>
+    <Loading></Loading>
   )
 }

@@ -70,6 +70,10 @@ export default function User() {
             component: <Select mode="tags" options={roleOptions} />
         },
         {
+            title: "创建人",
+            dataIndex: 'createByName',
+        },
+        {
             title: "创建时间",
             dataIndex: 'createAt',
             render: (text) => formatDate(text)
