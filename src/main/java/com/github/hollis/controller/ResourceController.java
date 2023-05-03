@@ -16,6 +16,7 @@ import com.github.hollis.utils.UserUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -32,6 +33,7 @@ public class ResourceController {
 
     @PostMapping
     @ApiOperation(value = "创建一个资源")
+    @PreAuthorize("hasAuthority('createResource') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.CREATE, target = OperationTargetEnum.RESOURCE, content = "创建资源")
     public Result<Void> addResource(@RequestBody CreateResourceDto requestDto) {
         ResourceEntity entity = resourceMapper.dtoToEntity(requestDto);
@@ -42,6 +44,7 @@ public class ResourceController {
 
     @DeleteMapping()
     @ApiOperation(value = "删除资源")
+    @PreAuthorize("hasAuthority('deleteResource') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.DELETE, target = OperationTargetEnum.RESOURCE, content = "删除资源")
     public Result<Void> removeResource(@RequestBody List<Integer> resourceIds) {
         permissionService.removeResources(resourceIds);
@@ -50,6 +53,7 @@ public class ResourceController {
 
     @PutMapping()
     @ApiOperation(value = "修改资源")
+    @PreAuthorize("hasAuthority('updateResource') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.RESOURCE, content = "修改资源")
     public Result<Void> updateResource(@RequestBody UpdateResourceDto requestDto) {
         resourceService.updateResource(requestDto);

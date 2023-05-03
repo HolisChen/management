@@ -74,6 +74,7 @@ public class UserController {
 
     @PostMapping
     @ApiOperation(value = "添加用户")
+    @PreAuthorize("hasAuthority('addUser') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.CREATE, target = OperationTargetEnum.USER, content = "创建用户")
     public Result<Void> createUser(@Validated @RequestBody CreateUserDto reqDto) {
         userService.addUser(reqDto);
@@ -82,6 +83,7 @@ public class UserController {
 
     @PutMapping
     @ApiOperation(value = "修改用户信息")
+    @PreAuthorize("hasAuthority('updateUser') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "修改用户信息")
     public Result<Void> updateUserInfo(@Validated @RequestBody UpdateUserDto reqDto) {
         userService.updateUser(reqDto);
@@ -90,6 +92,7 @@ public class UserController {
 
     @PutMapping("/{userId}/disable")
     @ApiOperation(value = "禁用用户")
+    @PreAuthorize("hasAuthority('disableUser') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "禁用用户")
     public Result<Void> disableUser(@PathVariable Integer userId) {
         userService.disableUser(userId);
@@ -98,6 +101,7 @@ public class UserController {
 
     @PutMapping("/{userId}/enable")
     @ApiOperation(value = "启用用户")
+    @PreAuthorize("hasAuthority('enableUser') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "启用用户")
     public Result<Void> enableUser(@PathVariable Integer userId) {
         userService.enableUser(userId);
@@ -106,6 +110,7 @@ public class UserController {
 
     @PutMapping("/{userId}/resetPassword")
     @ApiOperation(value = "重置用户密码")
+    @PreAuthorize("hasAuthority('resetUserPwd') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.UPDATE, target = OperationTargetEnum.USER, content = "重置用户密码")
     public Result<String> resetPassword(@PathVariable Integer userId) {
         return Result.success(userService.resetPassword(userId));
@@ -114,6 +119,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}/delete")
     @ApiOperation(value = "删除用户")
+    @PreAuthorize("hasAuthority('deleteUser') or hasRole('ADMIN')")
     @OperationLog(type = OperationTypeEnum.DELETE, target = OperationTargetEnum.USER, content = "删除用户")
     public Result<Void> deleteUser(@PathVariable Integer userId) {
         userService.deleteUser(userId);

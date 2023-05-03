@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.github.hollis.constant.RedisConstants;
 import com.github.hollis.constant.SecurityConstants;
 import com.github.hollis.dao.entity.ResourceEntity;
+import com.github.hollis.dao.entity.RoleEntity;
 import com.github.hollis.enums.ResourceTypeEnum;
 import com.github.hollis.service.permission.PermissionService;
+import com.github.hollis.service.permission.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class RedisSecurityContextRepository implements SecurityContextRepository {
     private final StringRedisTemplate stringRedisTemplate;
     private final PermissionService permissionService;
+    private final RoleService roleService;
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
@@ -45,6 +49,15 @@ public class RedisSecurityContextRepository implements SecurityContextRepository
                         .map(ResourceEntity::getResourceCode)
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
+                List<RoleEntity> assignedRoles
+                        = roleService.findRolesByUserIds(Collections.singletonList(loginUser.getUserId())).getOrDefault(loginUser.getUserId(), Collections.emptyList());
+                List<SimpleGrantedAuthority> assignedRoleAuthority = assignedRoles
+                        .stream()
+                        .map(RoleEntity::getRoleCode)
+                        .map(roleCode -> "ROLE_" + roleCode)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+                authorities.addAll(assignedRoleAuthority);
                 SecurityContextImpl securityContext = new SecurityContextImpl();
                 Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null, authorities);
                 securityContext.setAuthentication(authentication);

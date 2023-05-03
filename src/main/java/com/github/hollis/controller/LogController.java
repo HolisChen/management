@@ -10,6 +10,7 @@ import com.github.hollis.service.base.LogService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class LogController {
     private final LogService logService;
     private final LogMapper logMapper;
     @PostMapping("/page")
+    @PreAuthorize("hasAuthority('queryLog') or hasRole('ADMIN')")
     public Result<PageResponse<LogVo>> pageQuery(@RequestBody LogQueryDto dto) {
         Page<LogEntity> page = logService.pageQuery(dto);
         List<LogVo> logVos = logMapper.entityToVo(page.getContent());
