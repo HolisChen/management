@@ -1,11 +1,4 @@
 import { Navigate } from 'react-router-dom'
-// import Home from '../pages/Home';
-// import User from '../pages/User';
-// import Role from '../pages/Role';
-// import Menu from '../pages/Menu';
-// import Dashboard from '../pages/Dashboard';
-// import Login from '../pages/Login';
-// import LogQuery from '../pages/LogQuery';
 import Loading from '../components/Loading';
 import React, { lazy } from 'react';
 

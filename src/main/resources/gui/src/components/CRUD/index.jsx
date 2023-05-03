@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography, Pagination } from 'antd'
+import { SearchOutlined,DeleteFilled, PlusOutlined,RetweetOutlined } from '@ant-design/icons'
 import FormItem from "antd/es/form/FormItem"
 import EditableCell from '../EditableCell'
 import './index.css'
@@ -27,7 +28,7 @@ export default function CRUD(props) {
   const [selectRowKeys, setSelectRowKeys] = useState([])
   const [queryDivHeight, setQueryDivHeight] = useState(0)
   const [pageNo, setPageNo] = useState(1)
-  const [pageSize, setPageSize] = useState(50)
+  const [pageSize, setPageSize] = useState(15)
 
 
 
@@ -53,7 +54,7 @@ export default function CRUD(props) {
     setQueryDivHeight(queryDivRef.current.offsetHeight)
   }, [])
 
-  const height = window.innerHeight - 64 - queryDivHeight;
+  const height = window.innerHeight - 64 - queryDivHeight - 52;
 
   const rowSelection = batchDelete ? {
     type: 'checkbox',
@@ -218,12 +219,12 @@ export default function CRUD(props) {
     }
   }
   const tableScrollY = height - 40 - (paginationConfig ? 32 : 0)
-  const createBtn = createConfig ? <Button onClick={onCreateClick}>新增</Button> : <></>
+  const createBtn = createConfig ? <Button onClick={onCreateClick} icon={<PlusOutlined />}>新增</Button> : <></>
 
   const deleteCount = selectRowKeys.length;
   const batchDeleteBtn = batchDelete ? (
     <Popconfirm title={'删除数据'} description={`确定要删除这${deleteCount}条记录吗？`} okText={'是的'} cancelText={'点错了'} onConfirm={() => { onBatchDelete() }} disabled={!deleteCount}>
-      <Button danger type='primary' disabled={!selectRowKeys.length}>{deleteBtnName}</Button>
+      <Button danger type='primary' disabled={!selectRowKeys.length} icon={<DeleteFilled />}>{deleteBtnName}</Button>
     </Popconfirm>
   ) : <></>
 
@@ -246,8 +247,8 @@ export default function CRUD(props) {
         <Form form={queryForm}>
           <Row>
             {queryFormItems}
-            <Button type='primary' onClick={onQueryClick} >查询</Button>
-            <Button onClick={() => { queryForm.resetFields() }}>重置</Button>
+            <Button type='primary' onClick={onQueryClick} icon={<SearchOutlined />}>查询</Button>
+            <Button onClick={() => { queryForm.resetFields() }} icon={<RetweetOutlined />}>重置</Button>
             {createBtn}
             {batchDeleteBtn}
           </Row>
