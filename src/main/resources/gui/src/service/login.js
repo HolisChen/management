@@ -11,3 +11,7 @@ export async function doLogin(param) {
         })
 
 }
+
+export async function getCapture() {
+    return request.get('/api/capture')
+}

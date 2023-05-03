@@ -1,13 +1,22 @@
 import { useNavigate } from 'react-router-dom';
-import { doLogin } from '../service/login';
-import { Button, Form, Input } from 'antd';
+import { doLogin, getCapture } from '../service/login';
+import { Button, Col, Form, Row, Input, Image } from 'antd';
+import { useEffect, useState } from 'react';
 
 export default function Login() {
   const navigate = useNavigate()
+  const [captureId, setCaptureId] = useState('')
+  const [captureUrl, setCaptureUrl] = useState('')
+
+  useEffect(()=> {
+    refreshCapture()
+  }, [])
   const handleLogin = async (param) => {
-    const loginSuccess = await doLogin(param)
+    const loginSuccess = await doLogin({...param, captureId})
     if (loginSuccess) {
       navigate("/", { replace: true });
+    } else {
+      refreshCapture()
     }
   }
   const onFinish = (values) => {
@@ -15,6 +24,15 @@ export default function Login() {
   };
   const onFinishFailed = (errorInfo) => {
   };
+
+  const refreshCapture = () => {
+    getCapture()
+    .then(res => {
+      const {captureId, capture} = res
+      setCaptureId(captureId)
+      setCaptureUrl(`data:image/png;base64,${capture}`)
+    })
+  }
 
   return (
     <>
@@ -28,7 +46,8 @@ export default function Login() {
         }}
         style={{
           // maxWidth: 600,
-          marginTop: '30vh',
+          'padding-top': '30vh',
+          'min-height':'100vh'
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
@@ -40,7 +59,7 @@ export default function Login() {
           rules={[
             {
               required: true,
-              message: 'Please input your username!',
+              message: '请输入登录用户名!',
             },
           ]}
         >
@@ -53,11 +72,31 @@ export default function Login() {
           rules={[
             {
               required: true,
-              message: 'Please input your password!',
+              message: '请输入密码!',
             },
           ]}
         >
           <Input.Password placeholder='请输入密码' />
+        </Form.Item>
+
+        <Form.Item 
+          label="验证码"
+          name="capture"
+          rules={[
+            {
+              required: true,
+              message: '请输入验证码!',
+            },
+          ]}
+          >
+          <Row>
+            <Col span={14}>
+              <Input placeholder='请输入验证码'/>
+            </Col>
+            <Col span={10}>
+              <Image src={captureUrl} preview= {false} onClick={refreshCapture} title='点击刷新验证码'></Image>
+            </Col>
+          </Row>
         </Form.Item>
 
         <Form.Item

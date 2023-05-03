@@ -10,4 +10,10 @@ public class LoginDto {
     private String loginId;
     @NotBlank(message = "密码不能为空")
     private String password;
+
+    @NotBlank(message = "验证码有误")
+    private String captureId;
+
+    @NotBlank(message = "请输入验证码")
+    private String capture;
 }
