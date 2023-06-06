@@ -148,8 +148,8 @@ export default function Home() {
       <Layout>
         <Header className='header'>
           <Breadcrumb className='crumb' items={breadcrumbItems} />
-          <LoginUser user={currentUser} />
         </Header>
+        <LoginUser user={currentUser} />
         <Content className='main'>
           {/* <Outlet /> */}
           <Tabs

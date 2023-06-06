@@ -1,18 +1,18 @@
 import React from 'react'
-import { Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-
-
+import { Avatar, Badge } from 'antd';
+import defaultAvatar from './default_avatar.png'
 
 export default function LoginUser(props) {
     const { user } = props
     return (
         <>
-            <div style={{ float: 'right', position: 'relative', top: '-64px', right: '20px' }}>
-                <Avatar icon={<UserOutlined />} />
-                <span>{user.username}</span>
+            <div style={{ position: 'absolute', right: '30px', top: '20px' }}>
+                <Badge count={151}>
+                    <Avatar src={defaultAvatar} style={{ backgroundColor: '' }} onClick={() => {
+                        alert(1)
+                    }} />
+                </Badge>
             </div>
-
         </>
     )
 }
