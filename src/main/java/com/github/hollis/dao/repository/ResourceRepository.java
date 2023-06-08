@@ -23,6 +23,14 @@ public interface ResourceRepository extends BaseRepository<ResourceEntity, Integ
             "join RoleEntity d on b.roleId = d.id " +
             "join ResourceEntity e on c.resourceId = e.id " +
             "where a.deleteAt is null and d.deleteAt is null and e.deleteAt is null " +
-            "and a.id = ?1")
+            "and a.id = ?1 ")
     List<ResourceEntity> findAuthorizedByUserId(Integer userId);
+
+    @Query( "SELECT distinct e " +
+            "FROM UserEntity a join RoleDepartmentEntity b on a.departmentId = b.departmentId " +
+            "join RoleResourceEntity c on c.roleId = b.roleId " +
+            "join ResourceEntity e on c.resourceId = e.id " +
+            "where a.deleteAt is null and e.deleteAt is null " +
+            "and a.id = ?1 ")
+    List<ResourceEntity> findDepartmentAuthorizedByUserId(Integer userId);
 }

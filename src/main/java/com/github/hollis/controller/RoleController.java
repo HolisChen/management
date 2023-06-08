@@ -1,14 +1,18 @@
 package com.github.hollis.controller;
 
 import com.github.hollis.aspect.OperationLog;
+import com.github.hollis.dao.entity.RoleDepartmentEntity;
 import com.github.hollis.domain.dto.permission.CreateRoleDto;
 import com.github.hollis.domain.dto.permission.UpdateRoleDto;
+import com.github.hollis.domain.vo.permission.DepartmentTree;
 import com.github.hollis.domain.vo.permission.ResourceTree;
 import com.github.hollis.domain.vo.permission.RoleVo;
 import com.github.hollis.domain.vo.permission.UserVo;
 import com.github.hollis.enums.OperationTargetEnum;
 import com.github.hollis.enums.OperationTypeEnum;
 import com.github.hollis.mapper.UserMapper;
+import com.github.hollis.service.permission.DepartmentService;
+import com.github.hollis.service.permission.RoleDepartmentService;
 import com.github.hollis.service.permission.RoleService;
 import com.github.hollis.domain.vo.base.Result;
 import com.github.hollis.mapper.RoleMapper;
@@ -20,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class RoleController {
     private final RoleMapper roleMapper;
     private final UserMapper userMapper;
     private final PermissionService permissionService;
+    private final RoleDepartmentService roleDepartmentService;
+    private final DepartmentService departmentService;
 
     @ApiOperation(value = "获取角色列表")
     @GetMapping
@@ -95,4 +102,22 @@ public class RoleController {
         return Result.success();
     }
 
+    @GetMapping("/{roleId}/departmentTree")
+    @ApiOperation(value = "查询角色关联的部门树")
+    public Result<List<DepartmentTree>> getDepartmentTree(@PathVariable Integer roleId ) {
+        List<Integer> assignedDepIds = roleDepartmentService.findByRoleId(roleId)
+                .stream()
+                .map(RoleDepartmentEntity::getDepartmentId)
+                .collect(Collectors.toList());
+        return Result.success(departmentService.queryTree(assignedDepIds));
+    }
+
+    @ApiOperation(value = "保存角色关联的部门信息")
+    @PostMapping("/{roleId}/department")
+    @PreAuthorize("hasAuthority('saveRoleDepartment') or hasRole('ADMIN')")
+    @OperationLog(type = OperationTypeEnum.SAVE, target = OperationTargetEnum.ROLE_DEPARTMENT, content = "保存角色部门关联表")
+    public Result<Void> saveRoleDepartment(@PathVariable Integer roleId, @RequestBody List<Integer> departmentIds) {
+        roleDepartmentService.saveRoleDepartment(roleId, departmentIds);
+        return Result.success();
+    }
 }

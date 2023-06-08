@@ -11,7 +11,8 @@ public enum OperationTargetEnum {
     RESOURCE("t_resource"),
     ROLE_USER("t_role_user"),
     ROLE_RESOURCE("t_role_resource"),
-
+    ROLE_DEPARTMENT("t_role_department"),
+    DEPARTMENT("t_department"),
     ;
     private final String code;
 }

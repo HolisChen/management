@@ -31,4 +31,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "department_id")
+    private Integer departmentId;
+
 }

@@ -24,6 +24,8 @@ public class CreateUserDto {
 
     private List<Integer> bindingRoles;
 
+    private Integer departmentId;
+
     public List<Integer> getBindingRoles() {
         return null == bindingRoles ? Collections.emptyList() : bindingRoles;
     }
@@ -37,6 +39,7 @@ public class CreateUserDto {
         userEntity.setEmail(this.getEmail());
         userEntity.setPhoneNumber(this.getPhoneNumber());
         userEntity.setCreateBy(createBy);
+        userEntity.setDepartmentId(this.getDepartmentId());
         return userEntity;
     }
 }

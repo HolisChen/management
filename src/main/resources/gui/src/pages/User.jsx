@@ -135,8 +135,8 @@ export default function User() {
                     message.success(tips)
                 }).catch(err => {
                 })
-
-            }
+            },
+            confirmMsg: '确定吗？'
         },
         {
             buttonName:'重置密码',
@@ -149,7 +149,8 @@ export default function User() {
 
                     })
 
-            }
+            },
+            confirmMsg: '确定重置吗？'
         }
     ]
 

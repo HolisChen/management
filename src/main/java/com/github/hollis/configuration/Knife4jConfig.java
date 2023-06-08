@@ -37,11 +37,9 @@ public class Knife4jConfig {
     public Docket defaultApi2(LoginService loginService) {
         String token = "";
         try {
-            LoginDto loginDto = new LoginDto();
-            loginDto.setLoginId("admin");
-            loginDto.setPassword("1");
-            token = loginService.doLogin(loginDto);
+            token = loginService.generateToken4Swagger();
         }catch (Exception e) {
+            e.printStackTrace();
         }
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()

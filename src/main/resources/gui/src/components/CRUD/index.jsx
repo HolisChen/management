@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Col, Form, Modal, Row, Table, Space, Popconfirm, Typography, Pagination } from 'antd'
-import { SearchOutlined,DeleteFilled, PlusOutlined,RetweetOutlined } from '@ant-design/icons'
+import { SearchOutlined, DeleteFilled, PlusOutlined, RetweetOutlined } from '@ant-design/icons'
 import FormItem from "antd/es/form/FormItem"
 import EditableCell from '../EditableCell'
 import './index.css'
@@ -106,10 +106,14 @@ export default function CRUD(props) {
       render: (text, record, index) => {
         const editable = isEditing(record)
         const addtionalRowOperations = rowOperations.map((item, index) => {
-          const { buttonName, onClick } = item
+          const { buttonName, onClick, confirmMsg } = item
           const showButton = typeof buttonName === 'function' ? buttonName(record) : buttonName
-          return (<Typography.Link key={index} onClick={() => onClick(record, dataSource, setDataSource)}>{showButton}</Typography.Link>
-          )
+          return confirmMsg ? (
+              <Popconfirm title={confirmMsg} onConfirm={() => onClick(record, dataSource, setDataSource)} okText="确定" cancelText="取消">
+                <Typography.Link key={index}>{showButton}</Typography.Link>
+              </Popconfirm>)
+            : (<Typography.Link key={index} onClick={() => onClick(record, dataSource, setDataSource)}>{showButton}</Typography.Link>)
+
         })
 
         const rowDeleteBtn = deleteConfig && rowDelete ?
@@ -155,7 +159,7 @@ export default function CRUD(props) {
         } else {
           setDataSource(res)
         }
-      }).catch(e => {  })
+      }).catch(e => { })
     }
   }
 

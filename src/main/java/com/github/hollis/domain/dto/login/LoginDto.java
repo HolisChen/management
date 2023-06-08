@@ -16,4 +16,9 @@ public class LoginDto {
 
     @NotBlank(message = "请输入验证码")
     private String capture;
+
+
+    public boolean isStartup() {
+        return  captureId == null;
+    }
 }

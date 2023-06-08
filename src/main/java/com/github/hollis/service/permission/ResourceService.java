@@ -1,5 +1,6 @@
 package com.github.hollis.service.permission;
 
+import com.github.hollis.dao.BaseEntity;
 import com.github.hollis.domain.vo.permission.ResourceTree;
 import com.github.hollis.dao.entity.ResourceEntity;
 import com.github.hollis.dao.repository.ResourceRepository;
@@ -11,12 +12,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -105,7 +110,13 @@ public class ResourceService extends CRUDService<ResourceEntity, Integer, Resour
      * @return
      */
     public List<ResourceEntity> getAuthorizedResources(Integer userId) {
-        return repository.findAuthorizedByUserId(userId);
+        List<ResourceEntity> authorizedFromUserRole = repository.findAuthorizedByUserId(userId);
+        List<ResourceEntity> authorizedFromDepRole = repository.findDepartmentAuthorizedByUserId(userId);
+        return new ArrayList<>(Stream.of(authorizedFromDepRole, authorizedFromUserRole)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(BaseEntity::getId, Function.identity(), (v1, v2) -> v1))
+                .values());
+
     }
 
     @Override

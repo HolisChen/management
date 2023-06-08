@@ -22,3 +22,11 @@ export async function getResourceByRole(roleId) {
 export async function saveResourceByRole(roleId, payload) {
     return request.post(`/api/role/${roleId}/resource`, payload)
 }
+
+export async function getDepByRole(roleId) {
+    return request.get(`/api/role/${roleId}/departmentTree`)
+}
+
+export async function saveDepByRole(roleId, payload) {
+    return request.post(`/api/role/${roleId}/department`, payload)
+}

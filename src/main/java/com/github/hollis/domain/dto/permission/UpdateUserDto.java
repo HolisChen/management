@@ -25,6 +25,8 @@ public class UpdateUserDto {
 
     private List<Integer> bindingRoles;
 
+    private Integer departmentId;
+
     public List<Integer> getBindingRoles() {
         return null == bindingRoles ? Collections.emptyList() : bindingRoles;
     }
@@ -34,6 +36,7 @@ public class UpdateUserDto {
         origin.setUsername(username);
         origin.setEmail(email);
         origin.setPhoneNumber(phoneNumber);
+        origin.setDepartmentId(departmentId);
         return origin;
     }
 }

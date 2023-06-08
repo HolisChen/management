@@ -18,5 +18,7 @@ public class UserVo extends BaseVo {
 
     private String phoneNumber;
 
+    private Integer departmentId;
+
     private List<RoleVo> roles;
 }

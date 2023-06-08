@@ -25,3 +25,6 @@ VALUES ('admin', '$2a$10$Iu7hTvpHXFdStTX0aWiox.lC58Np5nIy0s/YmEv.7Oqmf8fLJHM6.',
         'chenhao.chengdu.china@gmail.com', '2023-03-20 14:26:56', '2023-03-20 14:51:56', NULL, 1);
 
 
+ALTER TABLE t_user
+   ADD COLUMN `department_id` int null comment '部门ID';
+

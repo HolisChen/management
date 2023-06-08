@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react'
+import React, { Children, useState } from 'react'
 import CRUD from '../components/CRUD'
 import { Input, Modal, Tree, message } from 'antd'
-import { addRole, deleteRole, getAllRoles, getResourceByRole, saveResourceByRole, updateRole } from '../service/role'
+import { addRole, deleteRole, getAllRoles, getDepByRole, getResourceByRole, saveDepByRole, saveResourceByRole, updateRole } from '../service/role'
 import { formatDate } from '../utils/date_util'
 export default function Role() {
     const columns = [
@@ -126,13 +126,24 @@ export default function Role() {
                 queryBindResource(id)
                 setEditRoleId(id)
             }
+        },
+        {
+            buttonName: '关联部门',
+            onClick: (row) => {
+                const { id, roleName } = row
+                setDepModalOpen(true)
+                queryBindDep(id)
+                setEditRoleId(id)
+            }
         }
     ]
 
     const [bindResource, setBindResource] = useState([])
+    const [bindDep, setBindDep] = useState([])
     const [checkedKeys, setCheckedKeys] = useState([])
     const [halfCheckedKeys, setHalfCheckedKeys] = useState([])
     const [bindModalOpen, setBindModalOpen] = useState(false)
+    const [depModalOpen, setDepModalOpen] = useState(false)
     const [editRoleId, setEditRoleId] = useState('')
     const queryBindResource = (roleId) => {
         getResourceByRole(roleId)
@@ -142,11 +153,20 @@ export default function Role() {
             })
     }
 
+    const queryBindDep = (roleId) => {
+        getDepByRole(roleId)
+            .then(res => {
+                setBindDep(res)
+                setCheckedKeys(getCheckedKeys(res))
+            })
+    }
+
     const getCheckedKeys = (tree = []) => {
         const keys = []
         if (tree.length) {
             tree.forEach(item => {
-                const { checked = false, children = [], id } = item
+                let { checked = false, children = [], id } = item
+                children = children === null ? [] : children
                 if (children.length) {
                     const childSelected = getCheckedKeys(children)
                     keys.push(...childSelected)
@@ -154,7 +174,7 @@ export default function Role() {
                 if (checked === true && !children.length) {
                     keys.push(id)
                 }
-                
+
             })
         }
         return keys;
@@ -165,16 +185,29 @@ export default function Role() {
         setEditRoleId('')
     }
 
+    const closeDepModal = () => {
+        setEditRoleId('')
+        setDepModalOpen(false)
+    }
+
     const onCheck = (keys, e) => {
         setHalfCheckedKeys(e.halfCheckedKeys)
         setCheckedKeys(keys)
-    } 
+    }
 
     const onSaveBind = () => {
-        saveResourceByRole(editRoleId, [...checkedKeys,...halfCheckedKeys])
+        saveResourceByRole(editRoleId, [...checkedKeys, ...halfCheckedKeys])
             .then(res => {
                 message.success('保存成功')
                 closeBindModal()
+            })
+    }
+
+    const onSaveBindDep = () => {
+        saveDepByRole(editRoleId, [...checkedKeys, ...halfCheckedKeys])
+            .then(res => {
+                message.success('保存成功')
+                closeDepModal()
             })
     }
 
@@ -197,9 +230,26 @@ export default function Role() {
                         key: 'id'
                     }}
                     checkedKeys={checkedKeys}
-                    onCheck={onCheck}
+                    onCheck={onCheck} 
+                    defaultExpandAll = {true}
                 />
             </Modal>
+
+            <Modal title='关联部门' open={depModalOpen} okText={'保存'} cancelText={'取消'} onCancel={closeDepModal} onOk={onSaveBindDep}>
+                <Tree
+                    checkable
+                    treeData={bindDep}
+                    fieldNames={{
+                        title: 'departmentName',
+                        key: 'id'
+                    }}
+                    checkedKeys={checkedKeys}
+                    onCheck={onCheck}
+                    defaultExpandParent={true}
+                    defaultExpandAll = {true}
+                />
+            </Modal>
+
 
         </div>
     )

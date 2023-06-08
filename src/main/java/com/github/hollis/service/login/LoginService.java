@@ -78,6 +78,18 @@ public class LoginService {
         }
     }
 
+    public String generateToken4Swagger() {
+        String token;
+        Optional<UserEntity> userEntity = userService.getByLoginId("admin");
+        if (userEntity.isPresent()) {
+            UserEntity user = userEntity.get();
+            token = tokenGenerator.generateToken(user);
+            stringRedisTemplate.opsForValue().set(RedisConstants.LOGIN_TOKEN_PREFIX + token, JSON.toJSONString(new LoginUser(user, "", token)), SecurityConstants.DEFAULT_TOKEN_EXPIRE, TimeUnit.MINUTES);
+            return token;
+        }
+        return null;
+    }
+
     public void doLogout(String token) {
         if (null != token) {
             stringRedisTemplate.delete(token);
