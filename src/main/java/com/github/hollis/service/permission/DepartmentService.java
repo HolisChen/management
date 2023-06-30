@@ -62,4 +62,8 @@ public class DepartmentService extends CRUDService<DepartmentEntity, Integer, De
         }
         return resultList;
     }
+
+    public List<DepartmentEntity> findAll() {
+        return departmentRepository.findAll();
+    }
 }

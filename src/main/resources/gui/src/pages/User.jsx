@@ -2,12 +2,16 @@
 import { useState, useEffect } from 'react'
 import CRUD from '../components/CRUD'
 import { USER_STATUS, USER_STATUS_OPTIONS } from '../constants/code_mapping'
-import { Tag, Select, Input, message } from 'antd'
+import { Tag, Select, Input, message,TreeSelect } from 'antd'
 import { getAllRoles } from '../service/role'
 import { addUser, deleteUser, disableUser, enableUser, getUserPage, resetPassword, updateUser } from '../service/user'
 import { formatDate } from '../utils/date_util'
+import { buildTreeSelectData } from '../utils/common_util'
+import { getAllDepartmentList, getDepartmentTree } from '../service/department'
 export default function User() {
     const [roleOptions, setRoleOptions] = useState([])
+    const [departmentOpetions, setDepartmentOptions] = useState([])
+    const [departmentMap, setDepartmentMap] = useState({})
     useEffect(() => {
         getAllRoles().then(res => {
             const options = res.map(role => ({
@@ -15,6 +19,20 @@ export default function User() {
                 label: role.roleName
             }))
             setRoleOptions(options);
+        })
+
+        getDepartmentTree().then(res => {
+            setDepartmentOptions(buildTreeSelectData(res, 'id', 'departmentName'))
+        })
+
+        const depMap = {}
+        getAllDepartmentList().then(res => {
+            if(res && res.length) {
+                res.forEach(item => {
+                    depMap[item.id] = item.departmentName
+                })
+                setDepartmentMap(depMap)
+            }
         })
     }, [])
 
@@ -53,6 +71,16 @@ export default function User() {
             dataIndex: 'email',
             editable: true,
             component: <Input />
+        },
+        {
+            title: "部门",
+            dataIndex: 'departmentId',
+            editable: true,
+            render: (text, record, index) => {
+            
+                return departmentMap[text] || ''
+            },
+            component: <TreeSelect treeData={departmentOpetions}/>
         },
         {
             title: "分配角色",
@@ -203,6 +231,17 @@ export default function User() {
                     }
                 ],
                 component: <Input type='password' />
+            },
+            {
+                name: 'departmentId',
+                label: '部门',
+                rules: [
+                    {
+                        required: true,
+                        message: '部门必填'
+                    }
+                ],
+                component: <TreeSelect treeData={departmentOpetions}/>
             },
             {
                 name: 'bindingRoles',

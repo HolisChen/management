@@ -7,6 +7,7 @@ export default function Login() {
   const navigate = useNavigate()
   const [captureId, setCaptureId] = useState('')
   const [captureUrl, setCaptureUrl] = useState('')
+  const [loginForm] = Form.useForm();
 
   useEffect(()=> {
     refreshCapture()
@@ -17,6 +18,9 @@ export default function Login() {
       navigate("/", { replace: true });
     } else {
       refreshCapture()
+
+      //清除已输入
+      loginForm.resetFields(['capture'],[])
     }
   }
   const onFinish = (values) => {
@@ -37,7 +41,7 @@ export default function Login() {
   return (
     <>
       <Form
-        name="basic"
+        form={loginForm}
         labelCol={{
           span: 10,
         }}
@@ -46,8 +50,8 @@ export default function Login() {
         }}
         style={{
           // maxWidth: 600,
-          'padding-top': '30vh',
-          'min-height':'100vh'
+          'paddingTop': '30vh',
+          'minHight':'100vh'
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
