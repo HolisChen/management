@@ -79,18 +79,16 @@ export default function Home() {
   useEffect(() => {
     const { pathname } = location
     const menuName = menuMapping[pathname]
-    if (menuName) {
-      if (!tabItems.filter(item => item.key === pathname).length) {
-        const newTabItems = [...tabItems, {
-          key: pathname,
-          label: menuName,
-          children: tabsRoutes[pathname] || <NotFound />,
-          closable: pathname !== '/dashboard'
-        }]
-        setTabItems(newTabItems)
-      }
-      setActiveKey(pathname)
+    if (!tabItems.filter(item => item.key === pathname).length) {
+      const newTabItems = [...tabItems, {
+        key: pathname,
+        label: menuName || `无效URL:${pathname}`,
+        children: tabsRoutes[pathname] || <NotFound />,
+        closable: pathname !== '/dashboard'
+      }]
+      setTabItems(newTabItems)
     }
+    setActiveKey(pathname)
   }, [location, menuMapping])
 
   useEffect(() => {

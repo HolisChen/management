@@ -1,6 +1,9 @@
 import { Navigate } from 'react-router-dom'
 import Loading from '../components/Loading';
 import React, { lazy } from 'react';
+import Department from '../pages/Department';
+import NotFound from '../components/404';
+import AppConfig from '../pages/AppConfig';
 
 const Home = lazy(() => import('../pages/Home'))
 const Role = lazy(() => import('../pages/Role'))
@@ -52,6 +55,18 @@ const routes = [
                         element: <React.Suspense fallback={<Loading />}>
                             <Menu />
                         </React.Suspense>
+                    },
+                    {
+                        path: "dept",
+                        element: <React.Suspense fallback={<Loading />}>
+                            <Department />
+                        </React.Suspense>
+                    },
+                    {
+                        path: "config",
+                        element: <React.Suspense fallback={<Loading />}>
+                            <AppConfig />
+                        </React.Suspense>
                     }
                 ]
             },
@@ -60,6 +75,10 @@ const routes = [
                 element: <React.Suspense fallback={<Loading />}>
                     <LogQuery />
                 </React.Suspense>
+            },
+            {
+                path: "*",
+                element : <NotFound />
             }
         ]
     }
